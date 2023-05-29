@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:imei/controllers/authController.dart';
 import 'package:imei/controllers/services_controller.dart';
 import 'package:imei/model/ServiceCatagoryModel.dart';
 import 'package:imei/model/ServicesModel.dart';
@@ -128,7 +129,14 @@ ServicesController servicesController=Get.find<ServicesController>();
                 showToast("IMEI number is required");
                 return;
               }else{
-                await controller.findImeiResults(_imeiNumberTextEditingController.text,selectedService);
+                AuthController authController = Get.find<AuthController>();
+                if(double.parse(authController.userModel!.wallet.toString())<double.parse(selectedService.cost.toString())){
+                  showToast("Insufficient amount");
+                }else{
+                  showLoadingDialog();
+                  await controller.findImeiResults(_imeiNumberTextEditingController.text,selectedService);
+                }
+
               }
             },
           ),

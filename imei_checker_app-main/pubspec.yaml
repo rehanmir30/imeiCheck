@@ -65,6 +65,8 @@ dependencies:
   qr_code_scanner: ^1.0.1
   #PayPal Gateway
   flutter_paypal:
+  #Stripe Gateway
+  flutter_stripe:
 
   # firebase packages
 

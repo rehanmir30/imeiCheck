@@ -5,6 +5,8 @@ import 'package:imei/controllers/AdminAccountsController.dart';
 import 'package:imei/model/InvoiceModel.dart';
 
 import '../utils/colors.dart';
+import '../utils/images_path.dart';
+import 'app_widgets.dart';
 
 class InvoicePopup extends StatelessWidget {
   InvoiceModel? invoiceModel;
@@ -31,16 +33,17 @@ class InvoicePopup extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Row(
-                  mainAxisAlignment:MainAxisAlignment.end,
+                  mainAxisAlignment:MainAxisAlignment.spaceBetween,
                   children: [
+                    AppWidgets.image(ImagesPath.appIcon.toString(), height: 20,),
                     InkWell(
                       onTap: (){
                         Get.back();
                       },
                       child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Icon(Icons.close,color: AppColors.kPrimary,),
-                ),
+                        padding: const EdgeInsets.all(8.0),
+                        child: Icon(Icons.close,color: AppColors.kPrimary,),
+                      ),
                     )],),
                 _buildInvoiceDetails(),
                 SizedBox(height: 20),

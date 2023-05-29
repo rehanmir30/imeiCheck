@@ -55,7 +55,7 @@ class ResultScreen extends StatelessWidget {
                     orderListController.userAllOrders![index].result=orderListController.userAllOrders![index].result.replaceAll("<br>"," ");
 
                     var jsonEncoded=jsonEncode(orderListController.userAllOrders![index].result);
-                    print("Helloooo: "+jsonEncoded.toString());
+                    // print("Helloooo: "+jsonEncoded.toString());
                     return OrderTileWidget(
                       status: orderListController
                           .userAllOrders![index].status,

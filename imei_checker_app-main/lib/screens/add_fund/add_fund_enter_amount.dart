@@ -1,4 +1,6 @@
 
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_paypal/flutter_paypal.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -11,6 +13,7 @@ import 'package:imei/utils/colors.dart';
 import 'package:imei/utils/constants.dart';
 import 'package:imei/utils/helper.dart';
 import 'package:imei/utils/images_path.dart';
+import 'package:imei/widgets/TransactionPopup.dart';
 
 import 'package:imei/widgets/common_scaffold.dart';
 
@@ -23,19 +26,25 @@ import '../../widgets/app_widgets.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/text_fields.dart';
 
-class AddFundEnterAmountScreen extends StatelessWidget {
+class AddFundEnterAmountScreen extends StatefulWidget {
   var SelectedBankImage;
   var SelectedBankPaymentMethod;
    AddFundEnterAmountScreen(this.SelectedBankImage,this.SelectedBankPaymentMethod,{Key? key}) : super(key: key);
-  final tag = 'AddFundEnterAmountScreen ';
-  // final CommonController controller = Get.find<CommonController>();
-  final TextEditingController _enterAmountTextEditingController = TextEditingController();
-  AuthController authController = Get.find<AuthController>();
-
-
 
   @override
-  Widget build(BuildContext context) {
+  State<AddFundEnterAmountScreen> createState() => _AddFundEnterAmountScreenState();
+}
+
+class _AddFundEnterAmountScreenState extends State<AddFundEnterAmountScreen> {
+  final tag = 'AddFundEnterAmountScreen ';
+
+  // final CommonController controller = Get.find<CommonController>();
+  final TextEditingController _enterAmountTextEditingController = TextEditingController();
+
+  AuthController authController = Get.find<AuthController>();
+
+  @override
+  Widget build(BuildContext contexts) {
     return CommonScaffold(
       appBarTitle: 'ADD FUND',
       body: Container(
@@ -63,7 +72,7 @@ class AddFundEnterAmountScreen extends StatelessWidget {
                  child: Column(
                    children: [
                      AppWidgets.image(
-                       SelectedBankImage.toString(),
+                       widget.SelectedBankImage.toString(),
                        height: 80,
                      ),
                      AppWidgets.spacingHeight(35),
@@ -90,23 +99,100 @@ class AddFundEnterAmountScreen extends StatelessWidget {
                        buttonTextStyle: AppTextStyles.black18W600TextStyle,
                        buttonOnPressed: () async {
 
-                         if(SelectedBankPaymentMethod=="Direct Transfer" || SelectedBankPaymentMethod =="USDT"){
+                         if(widget.SelectedBankPaymentMethod=="Direct Transfer" || widget.SelectedBankPaymentMethod =="USDT"){
                            if(_enterAmountTextEditingController.text==null||_enterAmountTextEditingController.text==""){
                              showToast("Please enter the amount");
                              return;
                            }else{
                              CommonController commonController = Get.find<CommonController>();
                              BankTransferController bankTransferController = Get.find<BankTransferController>();
-                             await commonController.InvoicePost(_enterAmountTextEditingController.text,SelectedBankPaymentMethod,context);
+                             await commonController.InvoicePost(_enterAmountTextEditingController.text,widget.SelectedBankPaymentMethod,context);
 
                            }
 
-                         }else if(SelectedBankPaymentMethod=="Paypal"){
-                           Navigator.of(context).push(
-                             MaterialPageRoute(
-                               builder: (BuildContext context) => PaypalPayment(_enterAmountTextEditingController.text),
-                             ),
-                           );
+                         }else if(widget.SelectedBankPaymentMethod=="Paypal"){
+                           BankTransferController controller = Get.find<BankTransferController>();
+
+                          await Get.to(()=>UsePaypal(
+                               sandboxMode: true,
+                               clientId:
+                               "AQ1uLtsTHhGFqwNbwiWQt8oxNAoJtYwJ90_TvuYOixvOIfbFXd3Y9Cx5O6cJhPq-8ljtf9yN3AB5voMx",
+                               secretKey:
+                               "EKm3aFddHE2wwdgnpiRzJ6W_On-99t5UfqdnggfH-tLst4atGqJoIK1u-CEyCIuNKwx8MDMf9Eo2sfFv",
+                               returnURL: "https://samplesite.com/return",
+                               cancelURL: "https://samplesite.com/cancel",
+                               transactions: [
+                                 {
+                                   "amount": {
+                                     "total": '${_enterAmountTextEditingController.text}',
+                                     "currency": "USD",
+                                     "details": {
+                                       "subtotal": '${_enterAmountTextEditingController.text}',
+                                       "shipping": '0',
+                                       "shipping_discount": 0
+                                     }
+                                   },
+                                   "description":
+                                   "${authController.userModel?.name} has purchased a load of ${_enterAmountTextEditingController.text}",
+                                   // "payment_options": {
+                                   //   "allowed_payment_method":
+                                   //       "INSTANT_FUNDING_SOURCE"
+                                   // },
+                                   "item_list": {
+                                     "items": [
+                                       {
+                                         "name": "${authController.userModel?.name}",
+                                         "quantity": 1,
+                                         "price": '${_enterAmountTextEditingController.text}',
+                                         "currency": "USD"
+                                       }
+                                     ],
+                                   }
+                                 }
+                               ],
+                               note: "Contact us for any questions on your order.",
+                               onSuccess: (Map params) async {
+                                 var rnd = new Random();
+                                 var next = rnd.nextDouble() * 1000;
+                                 while (next < 1000) {
+                                   next *= 10;
+                                 }
+
+                                 BankTransferController bankTransferController = Get.find<BankTransferController>();
+                                 CommonController commonController = Get.find<CommonController>();
+                                 print("onSuccess: $params");
+                                 var payerId = params['payerID'];
+                                 var paymentId = params['paymentId'];
+                                 var status = params['status'];
+                                 var paymentMethod = params['data']['payer']['payment_method'];
+                                 var payerEmail = params['data']['payer']['payer_info']['email'];
+                                 var amount = _enterAmountTextEditingController.text.toString();
+                                 print("payerID: ${payerId}");
+                                 print("status: ${status}");
+                                 print("paymentId: ${paymentId}");
+                                 print("paymentMethod: ${paymentMethod}");
+                                 print("payerEmail: ${payerEmail}");
+                                 print("amount: ${amount}");
+                                 showToast("TransactionSuccessful");
+                                 await bankTransferController.setWallet(_enterAmountTextEditingController.text.toString());
+                                 InvoiceModel invoice = await commonController.InvoicePostByBank( payerId,paymentId,paymentMethod,payerEmail,amount);
+
+                                 Get.back();
+                                 // Get.back(result: invoiceModel);
+                                 return invoice;
+                               },
+                               onError: (error) {
+                                 print("onError: $error");
+                                 showToast(error.toString());
+                                 return ;
+                               },
+                               onCancel: (params) {
+                                 print('cancelled: $params');
+                                 return;
+                               })
+                          );
+
+
                          }
                        },
                      ),
@@ -180,6 +266,4 @@ class AddFundEnterAmountScreen extends StatelessWidget {
       ),
     );
   }
-
-
 }

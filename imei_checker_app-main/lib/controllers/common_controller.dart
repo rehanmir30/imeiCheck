@@ -92,6 +92,62 @@ class CommonController extends GetxController {
     Get.offAll(const WelcomeScreen());
   }
 
+  Future updateWallet(amount)async{
+    AuthController authController = Get.find<AuthController>();
+    Map<String, String> header = {
+      "Accept": "application/json",
+      'Content-Type': 'application/json',
+    };
+    var body =
+        '{"username": "${authController.userModel?.userName.trim()}","wallet": "${amount}"}';
+
+    try {
+      showLoadingDialog();
+      var url = Uri.parse(
+        AppConstant.walletPostUrl,
+      );
+      Logger.debug(tag, 'Verify User API URL - ${url.toString()}');
+      Logger.debug(tag, 'Verify User Request Body - ${body.toString()}');
+      final response = await http.post(
+        url,
+        headers: header,
+        body: body,
+      );
+      //closeLoadingDialog();
+      var responseJson = jsonDecode(response.body.toString());
+      // var data = SignUpModel.fromJson(responseJson);
+      if (responseJson['success']== 1) {
+        showToast('Transaction successfully');
+      }
+    } on SocketException catch (e) {
+      closeLoadingDialog();
+      Logger.error(tag, 'Socket Exception- ${e.toString()}');
+      showAlert(
+          dialogType: DialogType.success,
+          title: "errorOccurred",
+          description: "Socket Exception");
+      rethrow;
+    } on TimeoutException catch (e) {
+      closeLoadingDialog();
+      Logger.error(tag, 'Timeout Exception- ${e.toString()}');
+      showAlert(
+          dialogType: DialogType.error,
+          title: "errorOccurred",
+          description: "Timeout Exception");
+      rethrow;
+    } on Exception catch (e) {
+      closeLoadingDialog();
+      Logger.error(tag, 'Exception- ${e.toString()}');
+      showAlert(
+          dialogType: DialogType.error,
+          title: "errorOccurred",
+          description: " Exception");
+      rethrow;
+    }
+
+
+  }
+
   ///Sign up user method
   Future<SignUpModel?> signUpUser(
       {required String email,
@@ -233,7 +289,7 @@ class CommonController extends GetxController {
       'Content-Type': 'application/json',
     };
     try {
-      var url = Uri.parse(AppConstant.getOrderUrl);
+      var url = Uri.parse(AppConstant.getOrderUrl+'?username=${userModel.userName}');
       Logger.debug(tag, 'Verify User API URL - ${url.toString()}');
 
       final response = await http.get(url, headers: header);
@@ -285,18 +341,20 @@ class CommonController extends GetxController {
       'Content-Type': 'application/json',
     };
     try {
-      var url = Uri.parse(AppConstant.getInvoiceUrl);
+      var url = Uri.parse(AppConstant.getInvoiceUrl+'?username=${userModel.userName}');
       Logger.debug(tag, 'Verify User API URL - ${url.toString()}');
 
-      final response = await http.get(url, headers: header);
+      // var body = '{"username":"${userModel.userName}"}';
+
+      final response = await http.get(url, headers: header,);
       var responseJson = jsonDecode(response.body);
       // print(responseJson[0]['id']);
       if (response.statusCode == 200) {
         for (int i = 0; i < responseJson.length; i++) {
-          if (responseJson[i]["username"] == userModel.userName) {
+          // if (responseJson[i]["username"] == userModel.userName) {
             InvoiceModel invoiceModel = InvoiceModel.fromJson(responseJson[i]);
             allInvoices.add(invoiceModel);
-          }
+          // }
         }
         InvoiceController invoiceController =
             Get.find<InvoiceController>();
@@ -527,10 +585,12 @@ class CommonController extends GetxController {
                showToast(result);
                print(result.toString());
                await postOrderAPICall(result, imei, selectedService);
+               closeLoadingDialog();
              } else if (responseJson["status"] == "Rejected") {
                var error = responseJson['error'];
                showToast(error);
                print(error.toString());
+               closeLoadingDialog();
              }
            } else {
              print("Hellooo: Failleedd");
@@ -565,12 +625,15 @@ class CommonController extends GetxController {
                 var json = jsonDecode(httpResponse.body);
                 // showToast(json['result']);
                 await postOrderAPICall(json['result'],imei,selectedService);
+                closeLoadingDialog();
 
             } else {
                 response = 'Request failed with status: ${httpResponse.statusCode}';
+                closeLoadingDialog();
             }
           } else {
               response = 'HTML format not found in the URL';
+              closeLoadingDialog();
           }
         }
 
@@ -632,6 +695,11 @@ class CommonController extends GetxController {
       if(responseJson["success"]==1){
         print("HI:: "+responseJson.toString());
         showToast(responseJson['message'].toString());
+        var currentAmount = authController.userModel!.wallet;
+        var latestAmount = double.parse(currentAmount.toString())-double.parse(selectedService.cost.toString());
+        authController.updateWallet(latestAmount.toString());
+        await updateWallet(latestAmount);
+        closeLoadingDialog();
       }
 
 
@@ -849,6 +917,105 @@ var body2='{"username": "${userName.trim()}","password":"${Password.text.trim()}
 
 
 
+  }
+  Future<InvoiceModel> InvoicePostByBank(payerId,paymentId,paymentMethod,payerEmail,amount)async{
+    InvoiceModel invoiceModel = InvoiceModel();
+    AuthController authController = Get.find<AuthController>();
+    BankTransferController bankTransferController = Get.find<BankTransferController>();
+    DateTime now = DateTime.now();
+
+
+    String formattedDate = DateFormat("dd MMM yyyy").format(now);
+    Map<String, String> header = {
+      "Accept": "application/json",
+      'Content-Type': 'application/json',
+    };
+    var rnd = new Random();
+    var next = rnd.nextDouble() * 1000;
+    while (next < 1000) {
+      next *= 10;
+    }
+    print(next.toInt());
+    var body = '{"username": "${authController.userModel?.userName}", "invoice_no": "${next.toInt()}", "total_amount": "${amount}", "inv_date": "${formattedDate}", "due_date": "${formattedDate}","suply_date": "${formattedDate}","payment_method": "${paymentMethod}", "status": "Paid", "prof": "1049", "payment_id": "${paymentId}", "payer_id": "${payerId}", "payer_email": "${payerEmail}"}';
+
+    try {
+      // showLoadingDialog();
+      var url = Uri.parse(AppConstant.invoicePostUrl);
+      Logger.debug(tag, 'Verify User API URL - ${url.toString()}');
+      Logger.debug(tag, 'Verify User Request Body - ${body.toString()}');
+      final response = await http.post(
+        url,
+        headers: header,
+        body: body,
+      );
+      // closeLoadingDialog();
+      var responseJson = jsonDecode(response.body);
+      print(response.statusCode.toString());
+
+          if(response.statusCode==200 ||response.statusCode==201){
+        if (responseJson['success'] == 1) {
+          if (responseJson['message'] == 'Data Inserted Successfully.') {
+            // closeLoadingDialog();
+            invoiceModel = await InvoiceModel(
+                username: "${authController.userModel?.userName}",
+                invoiceNo: "${next.toInt()}",
+                totalAmount: "${amount}",
+                invDate: "${formattedDate}",
+                dueDate: "${formattedDate}",
+                suplyDate: "${formattedDate}",
+                paymentMethod: "${payerEmail}",
+                status: "Paid",
+                prof: "1049",
+                paymentId: "${paymentId}",
+                payerId: "${payerId}",
+                payerEmail: "${payerEmail}");
+
+            // closeLoadingDialog();
+            CommonController common = Get.find<CommonController>();
+            await bankTransferController.setCount(1,true);
+            await bankTransferController.setInvoiceData(invoiceModel);
+            await common.getAllInvoices(authController.userModel!);
+            return invoiceModel;
+
+          } else {
+            closeLoadingDialog();
+            return invoiceModel;
+            // await bankTransferController.setInvoiceData(invoiceModel);
+          }
+        }
+      }else {
+        closeLoadingDialog();
+        print("Something's wrong with server. Try again later");
+        return invoiceModel;
+      }
+    } on SocketException catch (e) {
+      closeLoadingDialog();
+      Logger.error(tag, 'Socket Exception- ${e.toString()}');
+      showAlert(
+          dialogType: DialogType.success,
+          title: "errorOccurred",
+          description: "Socket Exception");
+      rethrow;
+    } on TimeoutException catch (e) {
+      closeLoadingDialog();
+      Logger.error(tag, 'Timeout Exception- ${e.toString()}');
+      showAlert(
+          dialogType: DialogType.error,
+          title: "errorOccurred",
+          description: "Timeout Exception");
+      rethrow;
+    } on Exception catch (e) {
+      closeLoadingDialog();
+      Logger.error(tag, 'Exception- ${e.toString()}');
+      showAlert(
+          dialogType: DialogType.error,
+          title: "errorOccurred",
+          description: " Exception");
+      rethrow;
+    }
+
+
+    return invoiceModel;
   }
 
 

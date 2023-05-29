@@ -11,6 +11,7 @@ import 'package:imei/model/InvoiceModel.dart';
 import 'package:imei/utils/helper.dart';
 import 'package:intl/intl.dart';
 
+import '../screens/add_fund/top_up_history_screen.dart';
 import '../widgets/TransactionPopup.dart';
 
 
@@ -66,15 +67,11 @@ class _PaypalPaymentState extends State<PaypalPayment> {
         ],
         note: "Contact us for any questions on your order.",
         onSuccess: (Map params) async {
-          AuthController authController = Get.find<AuthController>();
           var rnd = new Random();
           var next = rnd.nextDouble() * 1000;
           while (next < 1000) {
             next *= 10;
           }
-
-          DateTime now = DateTime.now();
-
           BankTransferController bankTransferController = Get.find<BankTransferController>();
           CommonController commonController = Get.find<CommonController>();
           print("onSuccess: $params");
@@ -92,7 +89,12 @@ class _PaypalPaymentState extends State<PaypalPayment> {
           print("amount: ${amount}");
           showToast("TransactionSuccessful");
           await bankTransferController.setWallet(widget.enteredAmount.toString());
-         return await commonController.InvoicePostByBank( payerId,paymentId,paymentMethod,payerEmail,amount,);
+          InvoiceModel invoice = await commonController.InvoicePostByBank( payerId,paymentId,paymentMethod,payerEmail,amount);
+
+          Get.back();
+          Get.to(()=>TopUpHistoryScreen());
+          // Get.back(result: invoiceModel);
+          return invoice;
          // Get.back(result: invoiceModel);
         },
         onError: (error) {
@@ -101,6 +103,7 @@ class _PaypalPaymentState extends State<PaypalPayment> {
         },
         onCancel: (params) {
           print('cancelled: $params');
+          showToast(params.toString());
         });
   }
 }

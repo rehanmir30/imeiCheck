@@ -14,18 +14,19 @@ class BankTransferController extends GetxController{
 
   int _count=0;
   int get count=>_count;
-  InvoiceModel _bankInvoice = InvoiceModel();
-  InvoiceModel get bankInvoice => _bankInvoice;
+  InvoiceModel? _bankInvoice;
+  InvoiceModel? get bankInvoice => _bankInvoice;
   bool _done = false;
   bool get done=>_done;
 
   setCount(counting,bool value)async{
     _count = counting;
-    _done =false;
+    _done =value;
     update();
   }
 
   setBankInvoice(InvoiceModel invoice)async{
+    print("Transaction ADDED");
     _bankInvoice = invoice;
     update();
   }

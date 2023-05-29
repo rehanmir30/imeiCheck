@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:imei/utils/app_text_styles.dart';
@@ -16,14 +17,15 @@ import '../../widgets/result_history.dart';
 import '../../widgets/text_fields.dart';
 
 class ResultDetailsScreen extends StatelessWidget {
-  ResultDetailsScreen({Key? key}) : super(key: key);
+  var result;
+  ResultDetailsScreen(this.result,{Key? key}) : super(key: key);
   final tag = 'ResultDetailsScreen ';
   // final CommonController controller = Get.find<CommonController>();
 
   @override
   Widget build(BuildContext context) {
     return CommonScaffold(
-      appBarTitle: 'Result',
+      appBarTitle: 'RESULT',
       body: Container(
         margin: AppWidgets.edgeInsetsSymmetric(
             horizontal: 20, vertical: 25,
@@ -73,10 +75,9 @@ class ResultDetailsScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(20.0).r,
 
                   ),
-                  child: AppWidgets.text(
-                    AppConstant.mobileDataText.toString(),
-                    style: AppTextStyles.black12TextStyle,
-                  ),
+                  child: HtmlWidget(result),
+
+
                 ),
 
               ],

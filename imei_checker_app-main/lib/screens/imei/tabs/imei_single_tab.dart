@@ -6,6 +6,7 @@ import 'package:imei/controllers/services_controller.dart';
 import 'package:imei/model/ServiceCatagoryModel.dart';
 import 'package:imei/model/ServicesModel.dart';
 import 'package:imei/screens/imei/qr_scaner_screen.dart';
+import 'package:imei/screens/result/result_screen.dart';
 import 'package:imei/utils/app_text_styles.dart';
 import 'package:imei/utils/colors.dart';
 import 'package:imei/utils/constants.dart';
@@ -68,12 +69,18 @@ ServicesController servicesController=Get.find<ServicesController>();
             height: 50.h,
             child: CustomTextFieldWithRectBorder(
               filled: true,
-              suffixIcon:  Padding(
-                padding:  AppWidgets.edgeInsetsOnly(right: 15),
-                child: AppWidgets.imageSVG(
-                  ImagesPath.qrScanBlackIconSVG,
-                  height: 27.h,
-                  width: 27.w,
+              textInputType: TextInputType.number,
+              suffixIcon:  InkWell(
+                onTap: () async {
+                  _imeiNumberTextEditingController.text =await Get.to(QRViewExample());
+                },
+                child: Padding(
+                  padding:  AppWidgets.edgeInsetsOnly(right: 15),
+                  child: AppWidgets.imageSVG(
+                    ImagesPath.qrScanBlackIconSVG,
+                    height: 27.h,
+                    width: 27.w,
+                  ),
                 ),
               ),
               controller: _imeiNumberTextEditingController,
@@ -135,6 +142,8 @@ ServicesController servicesController=Get.find<ServicesController>();
                 }else{
                   showLoadingDialog();
                   await controller.findImeiResults(_imeiNumberTextEditingController.text,selectedService);
+                  await controller.getAllOrders(authController.userModel!);
+                  Get.to(()=>ResultScreen());
                 }
 
               }

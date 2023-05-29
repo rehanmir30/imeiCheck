@@ -1,8 +1,6 @@
-
+import 'dart:convert';
 import 'dart:math';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_paypal/flutter_paypal.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:imei/controllers/BankTransferController.dart';
@@ -10,21 +8,14 @@ import 'package:imei/controllers/authController.dart';
 import 'package:imei/screens/add_fund/top_up_history_screen.dart';
 import 'package:imei/utils/app_text_styles.dart';
 import 'package:imei/utils/colors.dart';
-import 'package:imei/utils/constants.dart';
 import 'package:imei/utils/helper.dart';
-import 'package:imei/utils/images_path.dart';
-import 'package:imei/widgets/TransactionPopup.dart';
-
 import 'package:imei/widgets/common_scaffold.dart';
-
 import '../../Payment/PaypalPayment.dart';
 import '../../controllers/common_controller.dart';
-
-import '../../model/InvoiceModel.dart';
-import '../../widgets/InvoicePopup.dart';
 import '../../widgets/app_widgets.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/text_fields.dart';
+import 'package:http/http.dart' as http;
 
 class AddFundEnterAmountScreen extends StatefulWidget {
   var SelectedBankImage;
@@ -42,6 +33,7 @@ class _AddFundEnterAmountScreenState extends State<AddFundEnterAmountScreen> {
   final TextEditingController _enterAmountTextEditingController = TextEditingController();
 
   AuthController authController = Get.find<AuthController>();
+  Map<String,dynamic>? makePayment;
 
   @override
   Widget build(BuildContext contexts) {
@@ -113,84 +105,10 @@ class _AddFundEnterAmountScreenState extends State<AddFundEnterAmountScreen> {
                          }else if(widget.SelectedBankPaymentMethod=="Paypal"){
                            BankTransferController controller = Get.find<BankTransferController>();
 
-                          await Get.to(()=>UsePaypal(
-                               sandboxMode: true,
-                               clientId:
-                               "AQ1uLtsTHhGFqwNbwiWQt8oxNAoJtYwJ90_TvuYOixvOIfbFXd3Y9Cx5O6cJhPq-8ljtf9yN3AB5voMx",
-                               secretKey:
-                               "EKm3aFddHE2wwdgnpiRzJ6W_On-99t5UfqdnggfH-tLst4atGqJoIK1u-CEyCIuNKwx8MDMf9Eo2sfFv",
-                               returnURL: "https://samplesite.com/return",
-                               cancelURL: "https://samplesite.com/cancel",
-                               transactions: [
-                                 {
-                                   "amount": {
-                                     "total": '${_enterAmountTextEditingController.text}',
-                                     "currency": "USD",
-                                     "details": {
-                                       "subtotal": '${_enterAmountTextEditingController.text}',
-                                       "shipping": '0',
-                                       "shipping_discount": 0
-                                     }
-                                   },
-                                   "description":
-                                   "${authController.userModel?.name} has purchased a load of ${_enterAmountTextEditingController.text}",
-                                   // "payment_options": {
-                                   //   "allowed_payment_method":
-                                   //       "INSTANT_FUNDING_SOURCE"
-                                   // },
-                                   "item_list": {
-                                     "items": [
-                                       {
-                                         "name": "${authController.userModel?.name}",
-                                         "quantity": 1,
-                                         "price": '${_enterAmountTextEditingController.text}',
-                                         "currency": "USD"
-                                       }
-                                     ],
-                                   }
-                                 }
-                               ],
-                               note: "Contact us for any questions on your order.",
-                               onSuccess: (Map params) async {
-                                 var rnd = new Random();
-                                 var next = rnd.nextDouble() * 1000;
-                                 while (next < 1000) {
-                                   next *= 10;
-                                 }
+                          await Get.to(()=>PaypalPayment(_enterAmountTextEditingController.text, contexts));
 
-                                 BankTransferController bankTransferController = Get.find<BankTransferController>();
-                                 CommonController commonController = Get.find<CommonController>();
-                                 print("onSuccess: $params");
-                                 var payerId = params['payerID'];
-                                 var paymentId = params['paymentId'];
-                                 var status = params['status'];
-                                 var paymentMethod = params['data']['payer']['payment_method'];
-                                 var payerEmail = params['data']['payer']['payer_info']['email'];
-                                 var amount = _enterAmountTextEditingController.text.toString();
-                                 print("payerID: ${payerId}");
-                                 print("status: ${status}");
-                                 print("paymentId: ${paymentId}");
-                                 print("paymentMethod: ${paymentMethod}");
-                                 print("payerEmail: ${payerEmail}");
-                                 print("amount: ${amount}");
-                                 showToast("TransactionSuccessful");
-                                 await bankTransferController.setWallet(_enterAmountTextEditingController.text.toString());
-                                 InvoiceModel invoice = await commonController.InvoicePostByBank( payerId,paymentId,paymentMethod,payerEmail,amount);
+                         }else if(widget.SelectedBankPaymentMethod=="Stripe"){
 
-                                 Get.back();
-                                 // Get.back(result: invoiceModel);
-                                 return invoice;
-                               },
-                               onError: (error) {
-                                 print("onError: $error");
-                                 showToast(error.toString());
-                                 return ;
-                               },
-                               onCancel: (params) {
-                                 print('cancelled: $params');
-                                 return;
-                               })
-                          );
 
 
                          }
@@ -230,6 +148,30 @@ class _AddFundEnterAmountScreenState extends State<AddFundEnterAmountScreen> {
       ),
     );
   }
+
+createPayment(String amount, String curreny) async {
+    try{
+      Map<String,dynamic> body = {
+        'amount': int.parse(amount.toString()),
+        'currency':curreny,
+        'payment_method_types[]':'card'
+      };
+      var response = await http.post(Uri.parse('https://api.stripe.com/v1/payment_intents'),
+
+        body: body,
+        headers: {
+          'Authorization': 'Bearer sk_test_51ND5WZL4c8dEbwgLkVzsdkfc7foyMGsMShgUEDXTMni09t2ThclYbD03NJqe7AERJRO7cO3DWHTcf1qNDkNdpA91007dAdLXwf',
+          'Content-Type':'application/x-www-form-urlencoded'
+        });
+
+      return jsonDecode(response.body.toString());
+
+    }catch(e){
+      print('exception'+e.toString());
+
+    }
+
+}
 
   _topUpCard() {
     return AppWidgets.sizedBoxWidget(

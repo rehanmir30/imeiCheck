@@ -17,7 +17,6 @@ import 'package:imei/widgets/custom_buttom_navigation.dart';
 import 'controllers/binding/controller_binding.dart';
 import 'screens/result/result_details_screen.dart';
 import 'utils/routes.dart';
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await ScreenUtil.ensureScreenSize();
@@ -25,7 +24,6 @@ void main() async {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
-  // await GetStorage.init(Constants.keyDbName);
   runApp(
       ScreenUtilInit(
         designSize: const Size(360, 690),

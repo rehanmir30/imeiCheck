@@ -116,7 +116,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             status: orderListController
                                 .userAllOrders![index].status,
                             titleId:
-                                orderListController.userAllOrders![index].imei,
+                                orderListController.userAllOrders![index].imei, result: jsonEncoded,
                           );
                         });
               }),

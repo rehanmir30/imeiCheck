@@ -6,6 +6,7 @@ import 'dart:math';
 import 'package:http/http.dart' as http;
 import 'package:imei/controllers/BankTransferController.dart';
 import 'package:imei/screens/add_fund/top_up_history_screen.dart';
+import 'package:imei/screens/result/result_details_screen.dart';
 import 'package:imei/widgets/TransactionPopup.dart';
 import 'package:intl/intl.dart';
 import 'package:awesome_dialog/awesome_dialog.dart';
@@ -43,6 +44,22 @@ class CommonController extends GetxController {
   bool? userBool;
   List<String> _userNames=[];
   List<String> get userNames=>_userNames;
+  List <dynamic> _bulkList = [];
+  List <dynamic> get bulkList =>_bulkList;
+
+  List <dynamic> _duplicateBulkList = [];
+  List <dynamic> get duplicateBulkList =>_duplicateBulkList;
+
+  setBulkData(value)async{
+    _bulkList.add(value);
+    update();
+  }
+
+  setDuplicateBulkData(order)async{
+    _duplicateBulkList.add(order);
+    update();
+  }
+
 
   String? abc;
 
@@ -636,9 +653,20 @@ class CommonController extends GetxController {
                 response = 'JSON Response: ${httpResponse.body}';
                 var json = jsonDecode(httpResponse.body);
                 // showToast(json['result']);
-                await postOrderAPICall(json['result'],imei,selectedService);
+                if(json['result'].contains("Search Term:")){
+                  await postOrderAPICall(json['result'],imei,selectedService);
+                }else if(json['result'].contains("Duplicate Order.")){
+                  showToast("Duplicate Error");
+                  await postOrderAPICall(json['result'],imei,selectedService);
+                } else if(json['result'].contains("Not Found")){
+                  showToast(json['result'].toString());
+                  await postOrderAPICall(json['result'],imei,selectedService);
+                }else{
+                  showToast("Something went wrong");
+                  await postOrderAPICall(json['result'],imei,selectedService);
+                }
                 closeLoadingDialog();
-
+                Get.to(()=>ResultDetailsScreen(json['result']));
             } else {
                 response = 'Request failed with status: ${httpResponse.statusCode}';
                 closeLoadingDialog();
@@ -646,6 +674,120 @@ class CommonController extends GetxController {
           } else {
               response = 'HTML format not found in the URL';
               closeLoadingDialog();
+          }
+        }
+
+      // print("Hellooo: "+responseJson.toString());
+      //
+
+
+    } on SocketException catch (e) {
+      // closeLoadingDialog();
+      Logger.error(tag, 'Socket Exception- ${e.toString()}');
+      showAlert(
+          dialogType: DialogType.success,
+          title: "errorOccurred",
+          description: "Socket Exception");
+      rethrow;
+    } on TimeoutException catch (e) {
+      // closeLoadingDialog();
+      Logger.error(tag, 'Timeout Exception- ${e.toString()}');
+      showAlert(
+          dialogType: DialogType.error,
+          title: "errorOccurred",
+          description: "Timeout Exception");
+      rethrow;
+    } on Exception catch (e) {
+      // closeLoadingDialog();
+      Logger.error(tag, 'Exception- ${e.toString()}');
+      showAlert(
+          dialogType: DialogType.error,
+          title: "errorOccurred",
+          description: " Exception");
+      rethrow;
+    }
+  }
+  /// Multiple Orders places
+  Future findImeiBulkResults(String imei, ServiceModel selectedService) async {
+    try {
+      var url = Uri.parse(selectedService.link + imei);
+      Logger.debug(tag, 'Verify User API URL - ${url.toString()}');
+
+      final response = await http.get(url);
+
+      print("Hellooo: "+response.request.toString());
+
+      var responseJson;
+        try{
+           responseJson = jsonDecode(response.body);
+           if (response.statusCode == 200) {
+             if (responseJson["status"] == "Successful") {
+               var result = responseJson['response'];
+               // showToast(result);
+               print(result.toString());
+               await postOrderAPICall(result, imei, selectedService);
+               await setBulkData(result);
+               // closeLoadingDialog();
+             } else if (responseJson["status"] == "Rejected") {
+               var error = responseJson['error'];
+               showToast(error);
+               print(error.toString());
+               // closeLoadingDialog();
+             }
+           } else {
+             print("Hellooo: Failleedd");
+           }
+        }catch(e){
+          // var json = jsonEncode(response.body);
+          var response;
+          var urls = url.toString();
+          // Check if format=html exists
+          if (url.queryParameters.containsKey('format') &&
+              url.queryParameters['format'] == 'html') {
+            // Replace format=html with format=json
+            url = url.replace(queryParameters: {'format': 'json'});
+
+
+            List<String> parts = urls.split('&');
+            String firstPart = parts[0];
+
+            var StringUrl = "${url}&${parts[1]}&${parts[2]} &${parts[3]}";
+            var newUrl = Uri.parse(StringUrl);
+
+            print('First Part: $firstPart');
+
+            print("NEW URL: "+newUrl.toString());
+
+            // Make the API request
+            final httpResponse = await http.get(newUrl);
+
+            if (httpResponse.statusCode == 200) {
+              // Convert the response to JSON format
+                response = 'JSON Response: ${httpResponse.body}';
+                var json = jsonDecode(httpResponse.body);
+                // showToast(json['result']);
+                if(json['result'].contains("Search Term:")){
+                  await postOrderAPICall(json['result'],imei,selectedService);
+                }else if(json['result'].contains("Duplicate Order.")){
+                  showToast("Duplicate Error");
+                  await postOrderAPICall(json['result'],imei,selectedService);
+                } else if(json['result'].contains("Not Found")){
+                  showToast(json['result'].toString());
+                  await postOrderAPICall(json['result'],imei,selectedService);
+                }else{
+                  showToast("Something went wrong");
+                  await postOrderAPICall(json['result'],imei,selectedService);
+                }
+                // closeLoadingDialog();
+                // Get.to(()=>ResultDetailsScreen(json['result']));
+              await setBulkData(json['result']);
+            } else {
+                response = 'Request failed with status: ${httpResponse.statusCode}';
+                // closeLoadingDialog();
+            }
+          } else {
+              response = 'HTML format not found in the URL';
+              // closeLoadingDialog();
           }
         }
 

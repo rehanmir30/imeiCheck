@@ -106,17 +106,14 @@ class _HomeScreenState extends State<HomeScreen> {
                             : controller.userAllOrders!.length,
                         shrinkWrap: true,
                         primary: false,
+                        // reverse: true,
                         itemBuilder: (BuildContext context, int index) {
-                          //
-                          orderListController.userAllOrders![index].result=orderListController.userAllOrders![index].result.replaceAll("<br>"," ");
-
-                          var jsonEncoded=jsonEncode(orderListController.userAllOrders![index].result);
-                          print("Helloooo: "+jsonEncoded.toString());
                           return OrderTileWidget(
                             status: orderListController
                                 .userAllOrders![index].status,
                             titleId:
-                                orderListController.userAllOrders![index].imei, result: jsonEncoded,
+                                orderListController.userAllOrders![index].imei,
+                            result: orderListController.userAllOrders![index].result,
                           );
                         });
               }),

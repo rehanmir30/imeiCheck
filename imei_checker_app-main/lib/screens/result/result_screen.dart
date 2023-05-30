@@ -35,10 +35,13 @@ class _ResultScreenState extends State<ResultScreen> {
   OrderListController orderListController = Get.find<OrderListController>();
 
   List<OrderModel> searchList = [];
+  List<OrderModel> filteredList=[];
 
   @override
   Widget build(BuildContext context) {
-    List<OrderModel> filteredList = orderListController.userAllOrders!.reversed.toList();
+    setState(() {
+       filteredList = orderListController.userAllOrders!;
+    });
     return CommonScaffold(
       appBarTitle: 'RESULT',
       body: Container(
@@ -58,7 +61,9 @@ class _ResultScreenState extends State<ResultScreen> {
                 enabledBorderRadius: 18,
                 onChanged: (value){
                   if(value==""||value==null){
-                    searchList.clear();
+                    setState(() {
+                      searchList.clear();
+                    });
                   }else{
                     if(orderListController.userAllOrders!.isNotEmpty){
                     setState(() {
@@ -74,20 +79,21 @@ class _ResultScreenState extends State<ResultScreen> {
             AppWidgets.spacingHeight(10),
             Expanded(
               child: ListView.builder(
-                scrollDirection: Axis.vertical,
+                // scrollDirection: Axis.vertical,
                   primary: true,
                   itemCount:  (searchList.isEmpty)?orderListController.userAllOrders!.length:searchList.length,
                   shrinkWrap: true,
+                  reverse: false,
                   itemBuilder: (BuildContext context, int index) {
                     //
-                    (searchList.isEmpty)?filteredList[index].result=filteredList![index].result.replaceAll("<br>"," "):searchList[index].result=searchList[index].result.replaceAll("<br>"," ");
+                    // (searchList.isEmpty)?filteredList[index].result=filteredList![index].result.replaceAll("<br>"," "):searchList[index].result=searchList[index].result.replaceAll("<br>"," ");
 
                     var jsonEncoded=(searchList.isEmpty)?jsonEncode(filteredList![index].result):jsonEncode(searchList[index].result);
                     // print("Helloooo: "+jsonEncoded.toString());
                     return OrderTileWidget(
                       status: (searchList.isEmpty)?filteredList![index].status:searchList[index].status,
                       titleId: (searchList.isEmpty)?filteredList![index].imei:searchList[index].imei,
-                      result:  jsonEncoded,
+                      result:  (searchList.isEmpty)?filteredList[index].result:searchList[index].result,
                     );
                   }),
             ),

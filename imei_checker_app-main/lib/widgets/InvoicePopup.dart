@@ -50,7 +50,10 @@ class InvoicePopup extends StatelessWidget {
                 _buildTable(),
                 SizedBox(height: 20),
                 Text('Gateway: ${invoiceModel?.paymentMethod}\n'),
-                Text('Bank Details:'),
+                if(invoiceModel?.paymentMethod=="Direct Transfer"||invoiceModel?.paymentMethod=="USDT")
+                  Text('Bank Details:',style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold),),
+
+                if(invoiceModel?.paymentMethod=="Direct Transfer")
                 GetBuilder<AdminAcccountsController>(builder: (controller){
                   return ListView.builder(
                     shrinkWrap: true,
@@ -67,6 +70,9 @@ class InvoicePopup extends StatelessWidget {
 
                       });
                 }),
+
+                if(invoiceModel?.paymentMethod=="USDT")
+                  const Text("test_EKm3aFddHE2wwdgnpiRzJ6W_On-99t5UfqdnggfH-tLst4atGq").marginOnly(top: 10),
               ],
             ),
           ),

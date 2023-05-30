@@ -20,7 +20,7 @@ import '../../widgets/app_widgets.dart';
 import '../../widgets/result_history.dart';
 
 import 'package:html/parser.dart' show parse;
-import 'package:html/dom.dart';
+// import 'package:html/dom.dart';
 
 class HomeScreen extends StatefulWidget {
   HomeScreen({Key? key}) : super(key: key);
@@ -41,7 +41,11 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-
+    setWalletValue();
+  }
+  setWalletValue(){
+    authController.userModel?.wallet =double.tryParse(authController.userModel!.wallet.toString());
+    // print(authController.userModel?.wallet.toStringAsFixed(2));
   }
 
   @override
@@ -72,7 +76,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               imagesPath: ImagesPath.cardOrangePNG,
                               titleText: 'Credits',
                               detailsText:
-                                  '\$ ${authController.userModel!.wallet}',
+                                  '\$ ${authController.userModel!.wallet.toStringAsFixed(2)}',
                             ),
                             _topCards(
                               imagesPath: ImagesPath.eyeOrangePNG,
@@ -95,24 +99,21 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               GetBuilder<OrderListController>(builder: (controller) {
                 return (controller.userAllOrders == null)
-                    ? Container()
+                    ? Container(child: Text("No Text"),)
                     : ListView.builder(
                         itemCount: controller.userAllOrders!.length > 10
                             ? 10
                             : controller.userAllOrders!.length,
                         shrinkWrap: true,
-                        primary: true,
+                        primary: false,
+                        // reverse: true,
                         itemBuilder: (BuildContext context, int index) {
-                          //
-                          orderListController.userAllOrders![index].result=orderListController.userAllOrders![index].result.replaceAll("<br>"," ");
-
-                          var jsonEncoded=jsonEncode(orderListController.userAllOrders![index].result);
-                          print("Helloooo: "+jsonEncoded.toString());
                           return OrderTileWidget(
                             status: orderListController
                                 .userAllOrders![index].status,
                             titleId:
                                 orderListController.userAllOrders![index].imei,
+                            result: orderListController.userAllOrders![index].result,
                           );
                         });
               }),

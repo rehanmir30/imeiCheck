@@ -10,4 +10,8 @@ class AuthController extends GetxController{
     _userModel=user;
     update();
   }
+  updateWallet(wallet)async{
+    _userModel?.wallet = wallet;
+    update();
+  }
 }

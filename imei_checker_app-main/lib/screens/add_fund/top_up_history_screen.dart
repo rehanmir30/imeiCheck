@@ -52,6 +52,7 @@ class TopUpHistoryScreen extends StatelessWidget {
                   return ListView.builder(
                     shrinkWrap: true,
                       primary: false,
+                      reverse: true,
                       itemCount: controller.invoiceList!.length,
                       itemBuilder: (BuildContext context, int index){
                         return InkWell(

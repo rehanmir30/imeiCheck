@@ -11,7 +11,8 @@ import 'InvoicePopup.dart';
 import 'app_widgets.dart';
 
 class OrderTileWidget extends StatelessWidget {
-  OrderTileWidget({Key? key, required this.status, required this.titleId, this.amountText, this.amountTextShow = false, this.statusTextStyle}) : super(key: key);
+  var result;
+  OrderTileWidget({Key? key,required this.result, required this.status, required this.titleId, this.amountText, this.amountTextShow = false, this.statusTextStyle}) : super(key: key);
   final String? status, titleId, amountText;
   final TextStyle? statusTextStyle;
   final bool? amountTextShow;
@@ -32,7 +33,7 @@ class OrderTileWidget extends StatelessWidget {
             child: InkWell(
 
               onTap: ()async{
-                Get.to(ResultDetailsScreen());
+                Get.to(ResultDetailsScreen(result));
               },
               child: Container(
                 margin: AppWidgets.edgeInsetsSymmetric(horizontal: 16),

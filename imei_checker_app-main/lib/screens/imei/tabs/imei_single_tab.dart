@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:imei/controllers/OrderListController.dart';
+import 'package:imei/controllers/authController.dart';
 import 'package:imei/controllers/services_controller.dart';
+import 'package:imei/model/OrderModel.dart';
 import 'package:imei/model/ServiceCatagoryModel.dart';
 import 'package:imei/model/ServicesModel.dart';
 import 'package:imei/screens/imei/qr_scaner_screen.dart';
+import 'package:imei/screens/result/result_details_screen.dart';
+import 'package:imei/screens/result/result_screen.dart';
 import 'package:imei/utils/app_text_styles.dart';
 import 'package:imei/utils/colors.dart';
 import 'package:imei/utils/constants.dart';
@@ -67,12 +72,18 @@ ServicesController servicesController=Get.find<ServicesController>();
             height: 50.h,
             child: CustomTextFieldWithRectBorder(
               filled: true,
-              suffixIcon:  Padding(
-                padding:  AppWidgets.edgeInsetsOnly(right: 15),
-                child: AppWidgets.imageSVG(
-                  ImagesPath.qrScanBlackIconSVG,
-                  height: 27.h,
-                  width: 27.w,
+              textInputType: TextInputType.number,
+              suffixIcon:  InkWell(
+                onTap: () async {
+                  _imeiNumberTextEditingController.text =await Get.to(QRViewExample());
+                },
+                child: Padding(
+                  padding:  AppWidgets.edgeInsetsOnly(right: 15),
+                  child: AppWidgets.imageSVG(
+                    ImagesPath.qrScanBlackIconSVG,
+                    height: 27.h,
+                    width: 27.w,
+                  ),
                 ),
               ),
               controller: _imeiNumberTextEditingController,
@@ -128,7 +139,52 @@ ServicesController servicesController=Get.find<ServicesController>();
                 showToast("IMEI number is required");
                 return;
               }else{
-                await controller.findImeiResults(_imeiNumberTextEditingController.text,selectedService);
+                AuthController authController = Get.find<AuthController>();
+                if(double.parse(authController.userModel!.wallet.toString())<double.parse(selectedService.cost.toString())){
+                  showToast("Insufficient amount");
+                }else{
+                  if(controller.bulkDuplicateCheckBoxValue.value==true){
+                    OrderListController orderController = Get.find<OrderListController>();
+                    OrderModel? duplicateOrder = findFirstMatch(orderController.userAllOrders!, _imeiNumberTextEditingController.text);
+                    if(duplicateOrder?.imei==null||duplicateOrder?.imei==""){
+                      showToast("No Imei Found");
+                    }else{
+                      showDialog(context: context, builder: (context) {
+                        return AlertDialog(
+                          title: Text("Similar Imei Found"),
+                          content: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              CustomButton(borderRadius: BorderRadius.circular(20),
+                                buttonColor: AppColors.kPrimary,
+                                buttonText: "View Result",
+                                buttonWidth: MediaQuery.of(context).size.width,
+                                buttonOnPressed: () {
+                                Get.to(()=>ResultDetailsScreen(duplicateOrder?.result.toString()));
+                                },
+                              ),
+                              CustomButton(borderRadius: BorderRadius.circular(20),
+                                buttonColor: AppColors.kPrimary,
+                                buttonText: "Cancel",
+                                buttonWidth: MediaQuery.of(context).size.width,
+                                buttonOnPressed: () {
+                                Navigator.pop(context);
+                                },
+                              )
+
+                            ],),
+                        );
+                      },);
+                    }
+
+                  }else{
+                    showLoadingDialog();
+                    await controller.findImeiResults(_imeiNumberTextEditingController.text,selectedService);
+                    await controller.getAllOrders(authController.userModel!);
+                  }
+                  // Get.to(()=>ResultScreen());
+                }
+
               }
             },
           ),
@@ -268,6 +324,15 @@ ServicesController servicesController=Get.find<ServicesController>();
         ).marginAll(15),
       ),
     );
+  }
+
+  OrderModel? findFirstMatch(List<OrderModel> items, String searchTerm) {
+    for (OrderModel item in items) {
+      if (item.imei.contains(searchTerm)) {
+        return item;
+      }
+    }
+    return null;
   }
 }
 class Item {

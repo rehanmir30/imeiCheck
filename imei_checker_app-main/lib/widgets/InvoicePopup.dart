@@ -5,6 +5,8 @@ import 'package:imei/controllers/AdminAccountsController.dart';
 import 'package:imei/model/InvoiceModel.dart';
 
 import '../utils/colors.dart';
+import '../utils/images_path.dart';
+import 'app_widgets.dart';
 
 class InvoicePopup extends StatelessWidget {
   InvoiceModel? invoiceModel;
@@ -31,23 +33,27 @@ class InvoicePopup extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Row(
-                  mainAxisAlignment:MainAxisAlignment.end,
+                  mainAxisAlignment:MainAxisAlignment.spaceBetween,
                   children: [
+                    AppWidgets.image(ImagesPath.appIcon.toString(), height: 20,),
                     InkWell(
                       onTap: (){
                         Get.back();
                       },
                       child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Icon(Icons.close,color: AppColors.kPrimary,),
-                ),
+                        padding: const EdgeInsets.all(8.0),
+                        child: Icon(Icons.close,color: AppColors.kPrimary,),
+                      ),
                     )],),
                 _buildInvoiceDetails(),
                 SizedBox(height: 20),
                 _buildTable(),
                 SizedBox(height: 20),
                 Text('Gateway: ${invoiceModel?.paymentMethod}\n'),
-                Text('Bank Details:'),
+                if(invoiceModel?.paymentMethod=="Direct Transfer"||invoiceModel?.paymentMethod=="USDT")
+                  Text('Bank Details:',style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold),),
+
+                if(invoiceModel?.paymentMethod=="Direct Transfer")
                 GetBuilder<AdminAcccountsController>(builder: (controller){
                   return ListView.builder(
                     shrinkWrap: true,
@@ -64,6 +70,9 @@ class InvoicePopup extends StatelessWidget {
 
                       });
                 }),
+
+                if(invoiceModel?.paymentMethod=="USDT")
+                  const Text("test_EKm3aFddHE2wwdgnpiRzJ6W_On-99t5UfqdnggfH-tLst4atGq").marginOnly(top: 10),
               ],
             ),
           ),

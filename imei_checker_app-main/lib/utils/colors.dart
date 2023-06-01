@@ -26,6 +26,7 @@ class AppColors {
   static Color kBlueColor = Colors.blue;
   static Color kWhiteColor = Colors.white;
   static Color kRedColor = Colors.red;
+  static Color kOrangeColor = Colors.orange;
   static Color kTransparentColor = Colors.transparent;
 
   static const MaterialColor primarySwatch =  MaterialColor(

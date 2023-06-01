@@ -63,21 +63,19 @@ dependencies:
   connectivity_plus: ^3.0.3
   google_fonts: ^3.0.1
   qr_code_scanner: ^1.0.1
+  #Refresher
+  liquid_pull_to_refresh: ^3.0.1
   #PayPal Gateway
   flutter_paypal:
-  #Stripe Gateway
+#  Stripe Gateway
   flutter_stripe: ^5.0.0
   #HTML INTEGRATION
   flutter_widget_from_html:
-
   # firebase packages
-
   firebase_core: ^2.4.0
   firebase_auth: ^4.2.5
-
   # Design Package
   flutter_screenutil: ^5.7.0
-
   #cached data save packages
   shared_preferences: ^2.1.0
 

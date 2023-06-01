@@ -36,6 +36,7 @@ class _AddFundEnterAmountScreenState extends State<AddFundEnterAmountScreen> {
   final TextEditingController _enterAmountTextEditingController = TextEditingController();
 
   AuthController authController = Get.find<AuthController>();
+  CommonController commonController = Get.find<CommonController>();
 Map<String,dynamic>? paymentIntents;
 
   @override
@@ -109,6 +110,10 @@ Map<String,dynamic>? paymentIntents;
                            BankTransferController controller = Get.find<BankTransferController>();
 
                           await Get.to(()=>PaypalPayment(_enterAmountTextEditingController.text, contexts));
+
+                          // await Future.delayed(Duration(seconds: 2),(){
+                          //   Get.to(()=>TopUpHistoryScreen());
+                          // });
 
                          }else if(widget.SelectedBankPaymentMethod=="Stripe"){
 
@@ -228,7 +233,7 @@ Map<String,dynamic>? paymentIntents;
       var response = await http.post(
         Uri.parse('https://api.stripe.com/v1/payment_intents'),
         headers: {
-          'Authorization': 'Bearer sk_test_51ND5WZL4c8dEbwgLkVzsdkfc7foyMGsMShgUEDXTMni09t2ThclYbD03NJqe7AERJRO7cO3DWHTcf1qNDkNdpA91007dAdLXwf',
+          'Authorization': 'Bearer ${commonController.bankKeyModel!.stripeSecretKey}',
           'Content-Type': 'application/x-www-form-urlencoded'
         },
         body: body,

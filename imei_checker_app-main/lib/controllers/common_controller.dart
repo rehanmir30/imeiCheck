@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:developer';
+import 'package:html/parser.dart' show parseFragment;
+import 'package:html/dom.dart' as html;
 import 'dart:io';
 import 'dart:math';
 import 'package:http/http.dart' as http;
 import 'package:imei/controllers/BankTransferController.dart';
+import 'package:imei/model/BankKeyModel.dart';
 import 'package:imei/screens/add_fund/top_up_history_screen.dart';
 import 'package:imei/screens/result/result_details_screen.dart';
 import 'package:imei/widgets/TransactionPopup.dart';
@@ -50,6 +52,15 @@ class CommonController extends GetxController {
   List <dynamic> _duplicateBulkList = [];
   List <dynamic> get duplicateBulkList =>_duplicateBulkList;
 
+  BankKeyModel? _bankKeyModel;
+  BankKeyModel? get bankKeyModel=>_bankKeyModel;
+
+  setBankKeys(BankKeyModel bank)async{
+   _bankKeyModel = bank;
+   print("BANK KEY ADDED");
+   update();
+  }
+
   setBulkData(value)async{
     _bulkList.add(value);
     update();
@@ -80,13 +91,80 @@ class CommonController extends GetxController {
   Rx<bool> bulkDuplicateCheckBoxValue = false.obs;
   Rx<bool> bulkEmailCheckBoxValue = false.obs;
 
+  bool _searching = false;
+  bool get searching=>_searching;
+
+  bool _searchingInvoices = false;
+  bool get searchingInvoices=>_searchingInvoices;
+
+  setSearching(bool value)async{
+    _searching = value;
+    update();
+  }
+
+  setInvoiceSearching(bool value)async{
+    _searchingInvoices = value;
+    update();
+  }
+
   @override
   void onInit() {
     super.onInit();
     Logger.info(tag, "Inside onInit");
+    getBankKeys();
     getAdminBankAccounts();
     getAllUserNames();
     // _getSharedPrefValues();
+  }
+  getBankKeys()async{
+    Map<String, String> header = {
+      "Accept": "application/json",
+      'Content-Type': 'application/json',
+    };
+    // var body = '';
+    try {
+      // showLoadingDialog();
+      var url = Uri.parse(
+        AppConstant.getBankKeysUrl,
+      );
+      Logger.debug(tag, 'Verify User API URL - ${url.toString()}');
+      final response = await http.get(url, headers: header,);
+      //closeLoadingDialog();
+      var responseJson = jsonDecode(response.body.toString());
+      // var data = SignUpModel.fromJson(responseJson);
+      if (response.statusCode==200) {
+        BankKeyModel Model = BankKeyModel.fromMap(responseJson[0]);
+        print(Model.paypalClientId.toString());
+        await setBankKeys(Model);
+
+      }
+    } on SocketException catch (e) {
+      closeLoadingDialog();
+      Logger.error(tag, 'Socket Exception- ${e.toString()}');
+      showAlert(
+          dialogType: DialogType.success,
+          title: "errorOccurred",
+          description: "Socket Exception");
+      rethrow;
+    } on TimeoutException catch (e) {
+      closeLoadingDialog();
+      Logger.error(tag, 'Timeout Exception- ${e.toString()}');
+      showAlert(
+          dialogType: DialogType.error,
+          title: "errorOccurred",
+          description: "Timeout Exception");
+      rethrow;
+    } on Exception catch (e) {
+      closeLoadingDialog();
+      Logger.error(tag, 'Exception- ${e.toString()}');
+      showAlert(
+          dialogType: DialogType.error,
+          title: "errorOccurred",
+          description: " Exception");
+      rethrow;
+    }
+
+
   }
 
   isFirstTime() async {
@@ -606,76 +684,78 @@ class CommonController extends GetxController {
       print("Hellooo: "+response.request.toString());
 
       var responseJson;
-        try{
-           responseJson = jsonDecode(response.body);
-           if (response.statusCode == 200) {
-             if (responseJson["status"] == "Successful") {
-               var result = responseJson['response'];
-               showToast(result);
-               print(result.toString());
-               await postOrderAPICall(result, imei, selectedService);
-               closeLoadingDialog();
-             } else if (responseJson["status"] == "Rejected") {
-               var error = responseJson['error'];
-               showToast(error);
-               print(error.toString());
-               closeLoadingDialog();
-             }
-           } else {
-             print("Hellooo: Failleedd");
-           }
-        }catch(e){
-          // var json = jsonEncode(response.body);
-          var response;
-          var urls = url.toString();
-          // Check if format=html exists
-          if (url.queryParameters.containsKey('format') &&
-              url.queryParameters['format'] == 'html') {
-            // Replace format=html with format=json
-            url = url.replace(queryParameters: {'format': 'json'});
-
-
-            List<String> parts = urls.split('&');
-            String firstPart = parts[0];
-
-            var StringUrl = "${url}&${parts[1]}&${parts[2]} &${parts[3]}";
-            var newUrl = Uri.parse(StringUrl);
-
-            print('First Part: $firstPart');
-
-            print("NEW URL: "+newUrl.toString());
-
-            // Make the API request
-            final httpResponse = await http.get(newUrl);
-
-            if (httpResponse.statusCode == 200) {
-              // Convert the response to JSON format
-                response = 'JSON Response: ${httpResponse.body}';
-                var json = jsonDecode(httpResponse.body);
-                // showToast(json['result']);
-                if(json['result'].contains("Search Term:")){
-                  await postOrderAPICall(json['result'],imei,selectedService);
-                }else if(json['result'].contains("Duplicate Order.")){
-                  showToast("Duplicate Error");
-                  await postOrderAPICall(json['result'],imei,selectedService);
-                } else if(json['result'].contains("Not Found")){
-                  showToast(json['result'].toString());
-                  await postOrderAPICall(json['result'],imei,selectedService);
-                }else{
-                  showToast("Something went wrong");
-                  await postOrderAPICall(json['result'],imei,selectedService);
-                }
-                closeLoadingDialog();
-                Get.to(()=>ResultDetailsScreen(json['result']));
-            } else {
-                response = 'Request failed with status: ${httpResponse.statusCode}';
-                closeLoadingDialog();
-            }
-          } else {
-              response = 'HTML format not found in the URL';
-              closeLoadingDialog();
+      try{
+        responseJson = jsonDecode(response.body);
+        if (response.statusCode == 200) {
+          if (responseJson["status"] == "Successful") {
+            var result = responseJson['response'];
+            // showToast(result);
+            print(result.toString());
+            await postOrderAPICall(result, imei, selectedService);
+            closeLoadingDialog();
+             Get.to(()=>ResultDetailsScreen(result));
+          } else if (responseJson["status"] == "Rejected") {
+            var error = responseJson['error'];
+            // showToast(error);
+            print(error.toString());
+            closeLoadingDialog();
+             Get.to(()=>ResultDetailsScreen(error));
           }
+        } else {
+          print("Hellooo: Failleedd");
         }
+      }catch(e){
+        // var json = jsonEncode(response.body);
+        var response;
+        var urls = url.toString();
+        // Check if format=html exists
+        if (url.queryParameters.containsKey('format') &&
+            url.queryParameters['format'] == 'html') {
+          // Replace format=html with format=json
+          url = url.replace(queryParameters: {'format': 'json'});
+
+
+          List<String> parts = urls.split('&');
+          String firstPart = parts[0];
+
+          var StringUrl = "${url}&${parts[1]}&${parts[2]} &${parts[3]}";
+          var newUrl = Uri.parse(StringUrl);
+
+          print('First Part: $firstPart');
+
+          print("NEW URL: "+newUrl.toString());
+
+          // Make the API request
+          final httpResponse = await http.get(newUrl);
+
+          if (httpResponse.statusCode == 200) {
+            // Convert the response to JSON format
+            response = 'JSON Response: ${httpResponse.body}';
+            var json = jsonDecode(httpResponse.body);
+            // showToast(json['result']);
+            if(json['result'].contains("Search Term:")){
+              await postOrderAPICall(json['result'],imei,selectedService);
+            }else if(json['result'].contains("Duplicate Order.")){
+              // showToast("Duplicate Error");
+              await postOrderAPICall(json['result'],imei,selectedService);
+            } else if(json['result'].contains("Not Found")){
+              // showToast(json['result'].toString());
+              await postOrderAPICall(json['result'],imei,selectedService);
+            }else{
+              // showToast("Something went wrong");
+              await postOrderAPICall(json['result'],imei,selectedService);
+            }
+            closeLoadingDialog();
+            Get.to(()=>ResultDetailsScreen(json['result']));
+          } else {
+            response = 'Request failed with status: ${httpResponse.statusCode}';
+            closeLoadingDialog();
+          }
+        } else {
+          response = 'HTML format not found in the URL';
+          closeLoadingDialog();
+        }
+      }
 
       // print("Hellooo: "+responseJson.toString());
       //
@@ -718,78 +798,77 @@ class CommonController extends GetxController {
       print("Hellooo: "+response.request.toString());
 
       var responseJson;
-        try{
-           responseJson = jsonDecode(response.body);
-           if (response.statusCode == 200) {
-             if (responseJson["status"] == "Successful") {
-               var result = responseJson['response'];
-               // showToast(result);
-               print(result.toString());
-               await postOrderAPICall(result, imei, selectedService);
-               await setBulkData(result);
-               // closeLoadingDialog();
-             } else if (responseJson["status"] == "Rejected") {
-               var error = responseJson['error'];
-               showToast(error);
-               print(error.toString());
-               // closeLoadingDialog();
-             }
-           } else {
-             print("Hellooo: Failleedd");
-           }
-        }catch(e){
-          // var json = jsonEncode(response.body);
-          var response;
-          var urls = url.toString();
-          // Check if format=html exists
-          if (url.queryParameters.containsKey('format') &&
-              url.queryParameters['format'] == 'html') {
-            // Replace format=html with format=json
-            url = url.replace(queryParameters: {'format': 'json'});
-
-
-            List<String> parts = urls.split('&');
-            String firstPart = parts[0];
-
-            var StringUrl = "${url}&${parts[1]}&${parts[2]} &${parts[3]}";
-            var newUrl = Uri.parse(StringUrl);
-
-            print('First Part: $firstPart');
-
-            print("NEW URL: "+newUrl.toString());
-
-            // Make the API request
-            final httpResponse = await http.get(newUrl);
-
-            if (httpResponse.statusCode == 200) {
-              // Convert the response to JSON format
-                response = 'JSON Response: ${httpResponse.body}';
-                var json = jsonDecode(httpResponse.body);
-                // showToast(json['result']);
-                if(json['result'].contains("Search Term:")){
-                  await postOrderAPICall(json['result'],imei,selectedService);
-                }else if(json['result'].contains("Duplicate Order.")){
-                  showToast("Duplicate Error");
-                  await postOrderAPICall(json['result'],imei,selectedService);
-                } else if(json['result'].contains("Not Found")){
-                  showToast(json['result'].toString());
-                  await postOrderAPICall(json['result'],imei,selectedService);
-                }else{
-                  showToast("Something went wrong");
-                  await postOrderAPICall(json['result'],imei,selectedService);
-                }
-                // closeLoadingDialog();
-                // Get.to(()=>ResultDetailsScreen(json['result']));
-              await setBulkData(json['result']);
-            } else {
-                response = 'Request failed with status: ${httpResponse.statusCode}';
-                // closeLoadingDialog();
-            }
-          } else {
-              response = 'HTML format not found in the URL';
-              // closeLoadingDialog();
+      try{
+        responseJson = jsonDecode(response.body);
+        if (response.statusCode == 200) {
+          if (responseJson["status"] == "Successful") {
+            var result = responseJson['response'];
+            // showToast(result);
+            await postOrderAPICall(result, imei, selectedService);
+            await setBulkData(result);
+            // closeLoadingDialog();
+          } else if (responseJson["status"] == "Rejected") {
+            var error = responseJson['error'];
+            showToast(error);
+            print(error.toString());
+            // closeLoadingDialog();
           }
+        } else {
+          print("Hellooo: Failleedd");
         }
+      }catch(e){
+        // var json = jsonEncode(response.body);
+        var response;
+        var urls = url.toString();
+        // Check if format=html exists
+        if (url.queryParameters.containsKey('format') &&
+            url.queryParameters['format'] == 'html') {
+          // Replace format=html with format=json
+          url = url.replace(queryParameters: {'format': 'json'});
+
+
+          List<String> parts = urls.split('&');
+          String firstPart = parts[0];
+
+          var StringUrl = "${url}&${parts[1]}&${parts[2]} &${parts[3]}";
+          var newUrl = Uri.parse(StringUrl);
+
+          print('First Part: $firstPart');
+
+          print("NEW URL: "+newUrl.toString());
+
+          // Make the API request
+          final httpResponse = await http.get(newUrl);
+
+          if (httpResponse.statusCode == 200) {
+            // Convert the response to JSON format
+            response = 'JSON Response: ${httpResponse.body}';
+            var json = jsonDecode(httpResponse.body);
+            // showToast(json['result']);
+            if(json['result'].contains("Search Term:")){
+              await postOrderAPICall(json['result'],imei,selectedService);
+            }else if(json['result'].contains("Duplicate Order.")){
+              showToast("Duplicate Error");
+              await postOrderAPICall(json['result'],imei,selectedService);
+            } else if(json['result'].contains("Not Found")){
+              showToast(json['result'].toString());
+              await postOrderAPICall(json['result'],imei,selectedService);
+            }else{
+              showToast("Something went wrong");
+              await postOrderAPICall(json['result'],imei,selectedService);
+            }
+            // closeLoadingDialog();
+            // Get.to(()=>ResultDetailsScreen(json['result']));
+            await setBulkData(json['result']);
+          } else {
+            response = 'Request failed with status: ${httpResponse.statusCode}';
+            // closeLoadingDialog();
+          }
+        } else {
+          response = 'HTML format not found in the URL';
+          // closeLoadingDialog();
+        }
+      }
 
       // print("Hellooo: "+responseJson.toString());
       //
@@ -824,29 +903,58 @@ class CommonController extends GetxController {
 
   Future postOrderAPICall(
       String result, String imei, ServiceModel selectedService) async {
+    print("POST FUNCTION");
     AuthController authController = Get.find<AuthController>();
     try {
       Map<String, String> header = {
         "Accept": "application/json",
         'Content-Type': 'application/json',
       };
-      var body =
-          '{"status": "Success","service": "${selectedService.id.trim()}","imei":"${imei.trim()}","result":"${result}","credits":"${selectedService.cost.trim()}","username":"${authController.userModel!.userName.trim()}"}';
+      print("BEFORE: "+result.toString());
+      if(result.contains("</font>")){
+
+        // Parse the HTML string
+        html.DocumentFragment document = parseFragment(result);
+
+        // Get all font elements
+        List<html.Element> fontElements = document.querySelectorAll('font');
+
+        // Remove the font elements from the document
+        for (var fontElement in fontElements) {
+          fontElement.remove();
+        }
+
+        // Get the updated string without font tags
+        result = document.text!;
+
+        print("\n\nAFTER: "+result.toString());
+      }
+      var body = '{"status": "Success","service": "${selectedService.id}","imei":"${imei.trim()}","result":"${result.trim()}","credits":"${selectedService.cost.trim()}","username":"${authController.userModel!.userName.trim()}"}';
 
       var url = Uri.parse(
         AppConstant.postOrderUrl,
       );
       Logger.debug(tag, 'Verify User API URL - ${url.toString()}');
-      Logger.debug(tag, 'Verify User Request Body - ${body.toString()}');
-      final response = await http.post(
-        url,
-        headers: header,
+      // Logger.debug(tag, 'Verify User Request Body - ${body.toString()}');
+      final response = await http.post(url, headers: header,
         body: body,
       );
+      showToast(body.toString());
 
       var responseJson = jsonDecode(response.body);
 
+      print("Post Result: "+responseJson["success"].toString());
+
       if(responseJson["success"]==1){
+        print("HI:: "+responseJson.toString());
+        showToast(responseJson['message'].toString());
+        var currentAmount = authController.userModel!.wallet;
+        var latestAmount = double.parse(currentAmount.toString())-double.parse(selectedService.cost.toString());
+        authController.updateWallet(latestAmount.toString());
+        await updateWallet(latestAmount);
+        closeLoadingDialog();
+      }
+     else if(responseJson["success"]==0){
         print("HI:: "+responseJson.toString());
         showToast(responseJson['message'].toString());
         var currentAmount = authController.userModel!.wallet;
@@ -1193,7 +1301,7 @@ var body2='{"username": "${userName.trim()}","password":"${Password.text.trim()}
         for (int i = 0; i < responseJson.length; i++) {
           // print(responseJson[i]['username']);
           userNames.add(responseJson[i]['username']);
-          print("USERS NAME: ${responseJson[i]['username']}");
+          // print("USERS NAME: ${responseJson[i]['username']}");
         }
         await setUserNames(userNames);
       }else{

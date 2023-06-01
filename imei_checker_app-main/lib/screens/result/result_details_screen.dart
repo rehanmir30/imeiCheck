@@ -75,7 +75,7 @@ class ResultDetailsScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(20.0).r,
 
                   ),
-                  child: HtmlWidget(result),
+                  child: HtmlWidget('<p>${result}</p>',renderMode: RenderMode.column,),
 
 
                 ),

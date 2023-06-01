@@ -167,6 +167,15 @@ class AppTextStyles {
   );
 
   /// size = 12
+  /// color = orange
+  static TextStyle orange12TextStyle = TextStyle(
+    color: AppColors.kOrangeColor,
+    fontSize: 12.spMin,
+    fontWeight: FontWeight.bold,
+    fontFamily: _fontPoppins,
+  );
+
+  /// size = 12
   /// color = blue
   static TextStyle blue12TextStyle = TextStyle(
     color: AppColors.kBlueColor,

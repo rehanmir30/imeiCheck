@@ -201,9 +201,11 @@ Map<String,dynamic>? paymentIntents;
       await strip.Stripe.instance
           .initPaymentSheet(
           paymentSheetParameters: strip.SetupPaymentSheetParameters(
-              paymentIntentClientSecret: paymentIntents![
-              'client_secret'], //Gotten from payment intent
+              paymentIntentClientSecret: paymentIntents!['client_secret'], //Gotten from payment intent
               style: ThemeMode.dark,
+              googlePay: strip.PaymentSheetGooglePay(currencyCode: 'PK',merchantCountryCode: 'US',),
+              setupIntentClientSecret: paymentIntents!['client_secret'],
+              appearance: strip.PaymentSheetAppearance(shapes: strip.PaymentSheetShape(borderRadius: 10)),
               merchantDisplayName: authController.userModel!.userName.toString()))
           .then((value) {
         // Modeling.StripePayementModel  model  =  Modeling.StripePayementModel.fromJson(paymentIntents!);
@@ -221,12 +223,18 @@ Map<String,dynamic>? paymentIntents;
       throw Exception(err);
     }
   }
+
+  calculateAmount(String amount){
+    final price = int.parse(amount)*100;
+    return price;
+  }
   createPaymentIntent(String amount, String currency) async {
     try {
       //Request body
       Map<String, dynamic> body = {
-        'amount': amount.toString(),
+        'amount': calculateAmount(amount).toString(),
         'currency': currency,
+        'payment_method_types[]': 'card'
       };
 
       //Make post request to Stripe
@@ -240,6 +248,7 @@ Map<String,dynamic>? paymentIntents;
       );
       return json.decode(response.body);
     } catch (err) {
+      showToast("You can't transfer amount in cents");
       throw Exception(err.toString());
     }
   }
@@ -269,7 +278,7 @@ Map<String,dynamic>? paymentIntents;
             ));
 
         await bankTransferController.setWallet(model.amount.toString());
-         await commonController.InvoicePostByBank( model.clientSecret,model.id,"Stripe",authController.userModel?.email,model.amount);
+         await commonController.InvoicePostByBank( model.clientSecret,model.id,"Stripe",authController.userModel?.email,_enterAmountTextEditingController.text);
          closeLoadingDialog();
          Get.back();
          Get.to(()=>TopUpHistoryScreen());

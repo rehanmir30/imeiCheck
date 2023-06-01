@@ -848,13 +848,13 @@ class CommonController extends GetxController {
             if(json['result'].contains("Search Term:")){
               await postOrderAPICall(json['result'],imei,selectedService);
             }else if(json['result'].contains("Duplicate Order.")){
-              showToast("Duplicate Error");
+              // showToast("Duplicate Error");
               await postOrderAPICall(json['result'],imei,selectedService);
             } else if(json['result'].contains("Not Found")){
-              showToast(json['result'].toString());
+              // showToast(json['result'].toString());
               await postOrderAPICall(json['result'],imei,selectedService);
             }else{
-              showToast("Something went wrong");
+              // showToast("Something went wrong");
               await postOrderAPICall(json['result'],imei,selectedService);
             }
             // closeLoadingDialog();

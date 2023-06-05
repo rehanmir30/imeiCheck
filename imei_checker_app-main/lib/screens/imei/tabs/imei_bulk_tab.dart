@@ -109,6 +109,7 @@ class _BulkTabWidgetState extends State<BulkTabWidget> {
             buttonTextStyle: AppTextStyles.black18W600TextStyle,
             buttonOnPressed: () async {
               if(controller.bulkDuplicateCheckBoxValue.value==true){
+                List<String> imei=[];
                 showLoadingDialog();
                 OrderListController orderController = Get.find<OrderListController>();
                 CommonController commonController = Get.find<CommonController>();
@@ -117,6 +118,7 @@ class _BulkTabWidgetState extends State<BulkTabWidget> {
                 for(var line in lines){
                   OrderModel? duplicateOrder = await findFirstMatch(orderController.userAllOrders!, line);
                   await commonController.setDuplicateBulkData(duplicateOrder?.result);
+                  imei.add(line);
                 }
                 if(commonController.duplicateBulkList.length==null||commonController.duplicateBulkList.length==""){
                   showToast("No Imei Found");
@@ -149,9 +151,14 @@ class _BulkTabWidgetState extends State<BulkTabWidget> {
                         ],),
                     );
                   },);
+
+                  // if(commonController.bulkEmailCheckBoxValue.value==true){
+                  //     await controller.SendMail(imei);
+                  // }
                 }
 
               }else{
+                List<String> imei=[];
                 _focusNode.unfocus();
                 AuthController auth = Get.find<AuthController>();
                 showLoadingDialog();
@@ -159,9 +166,13 @@ class _BulkTabWidgetState extends State<BulkTabWidget> {
                 controller.bulkList.clear();
                 for (String line in lines) {
                   await controller.findImeiBulkResults(line,selectedService);
+                  imei.add(line);
                 }
                 closeLoadingDialog();
-                controller.getAllOrders(auth.userModel!);
+                await controller.getAllOrders(auth.userModel!);
+                // if(controller.bulkEmailCheckBoxValue.value==true){
+                //   await controller.SendMail(imei);
+                // }
                 Get.to(()=>BulkResultDetailScreen(controller.bulkList));
               }
 

@@ -5,6 +5,7 @@ import 'package:html/dom.dart' as html;
 import 'dart:io';
 import 'dart:math';
 import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
 import 'package:imei/controllers/BankTransferController.dart';
 import 'package:imei/model/BankKeyModel.dart';
 import 'package:imei/screens/add_fund/top_up_history_screen.dart';
@@ -38,35 +39,50 @@ import '../widgets/InvoicePopup.dart';
 import '../widgets/custom_buttom_navigation.dart';
 import 'AdminAccountsController.dart';
 import '../model/InvoicePost.dart';
+import 'package:mailer/mailer.dart';
+import 'package:mailer/smtp_server.dart';
 
 class CommonController extends GetxController {
   final String tag = "CommonController";
   SharedPreferences? sharedPreferences;
   BuildContext? context;
   bool? userBool;
-  List<String> _userNames=[];
-  List<String> get userNames=>_userNames;
+  List<String> _userNames = [];
+
+  List<String> get userNames => _userNames;
   List <dynamic> _bulkList = [];
-  List <dynamic> get bulkList =>_bulkList;
+
+  List <dynamic> get bulkList => _bulkList;
 
   List <dynamic> _duplicateBulkList = [];
-  List <dynamic> get duplicateBulkList =>_duplicateBulkList;
+
+  List <dynamic> get duplicateBulkList => _duplicateBulkList;
 
   BankKeyModel? _bankKeyModel;
-  BankKeyModel? get bankKeyModel=>_bankKeyModel;
 
-  setBankKeys(BankKeyModel bank)async{
-   _bankKeyModel = bank;
-   print("BANK KEY ADDED");
-   update();
+  BankKeyModel? get bankKeyModel => _bankKeyModel;
+
+  File? _profImage;
+
+  File? get profImage => _profImage;
+
+  setProfImage(File? file) async {
+    _profImage = file;
+    update();
   }
 
-  setBulkData(value)async{
+  setBankKeys(BankKeyModel bank) async {
+    _bankKeyModel = bank;
+    print("BANK KEY ADDED");
+    update();
+  }
+
+  setBulkData(value) async {
     _bulkList.add(value);
     update();
   }
 
-  setDuplicateBulkData(order)async{
+  setDuplicateBulkData(order) async {
     _duplicateBulkList.add(order);
     update();
   }
@@ -74,7 +90,7 @@ class CommonController extends GetxController {
 
   String? abc;
 
-  setUserNames(List<String> usernames)async{
+  setUserNames(List<String> usernames) async {
     _userNames = usernames;
     update();
   }
@@ -92,17 +108,19 @@ class CommonController extends GetxController {
   Rx<bool> bulkEmailCheckBoxValue = false.obs;
 
   bool _searching = false;
-  bool get searching=>_searching;
+
+  bool get searching => _searching;
 
   bool _searchingInvoices = false;
-  bool get searchingInvoices=>_searchingInvoices;
 
-  setSearching(bool value)async{
+  bool get searchingInvoices => _searchingInvoices;
+
+  setSearching(bool value) async {
     _searching = value;
     update();
   }
 
-  setInvoiceSearching(bool value)async{
+  setInvoiceSearching(bool value) async {
     _searchingInvoices = value;
     update();
   }
@@ -116,7 +134,8 @@ class CommonController extends GetxController {
     getAllUserNames();
     // _getSharedPrefValues();
   }
-  getBankKeys()async{
+
+  getBankKeys() async {
     Map<String, String> header = {
       "Accept": "application/json",
       'Content-Type': 'application/json',
@@ -132,11 +151,10 @@ class CommonController extends GetxController {
       //closeLoadingDialog();
       var responseJson = jsonDecode(response.body.toString());
       // var data = SignUpModel.fromJson(responseJson);
-      if (response.statusCode==200) {
+      if (response.statusCode == 200) {
         BankKeyModel Model = BankKeyModel.fromMap(responseJson[0]);
         print(Model.paypalClientId.toString());
         await setBankKeys(Model);
-
       }
     } on SocketException catch (e) {
       closeLoadingDialog();
@@ -163,8 +181,6 @@ class CommonController extends GetxController {
           description: " Exception");
       rethrow;
     }
-
-
   }
 
   isFirstTime() async {
@@ -197,14 +213,15 @@ class CommonController extends GetxController {
     Get.offAll(const WelcomeScreen());
   }
 
-  Future updateWallet(amount)async{
+  Future updateWallet(amount) async {
     AuthController authController = Get.find<AuthController>();
     Map<String, String> header = {
       "Accept": "application/json",
       'Content-Type': 'application/json',
     };
     var body =
-        '{"username": "${authController.userModel?.userName.trim()}","wallet": "${amount}"}';
+        '{"username": "${authController.userModel?.userName
+        .trim()}","wallet": "${amount}"}';
 
     try {
       showLoadingDialog();
@@ -221,7 +238,7 @@ class CommonController extends GetxController {
       //closeLoadingDialog();
       var responseJson = jsonDecode(response.body.toString());
       // var data = SignUpModel.fromJson(responseJson);
-      if (responseJson['success']== 1) {
+      if (responseJson['success'] == 1) {
         showToast('Transaction successfully');
       }
     } on SocketException catch (e) {
@@ -249,22 +266,18 @@ class CommonController extends GetxController {
           description: " Exception");
       rethrow;
     }
-
-
   }
 
   ///Sign up user method
   Future<SignUpModel?> signUpUser(
-      {required String email,
-      required String userName,
-      required String password,
-      required String phone}) async {
+      {required String email, required String userName, required String password, required String phone}) async {
     Map<String, String> header = {
       "Accept": "application/json",
       'Content-Type': 'application/json',
     };
     var body =
-        '{"email": "${email.trim()}","username": "${userName.trim()}","password": "${password.trim()}","phone": "${phone.trim()}"}';
+        '{"email": "${email.trim()}","username": "${userName
+        .trim()}","password": "${password.trim()}","phone": "${phone.trim()}"}';
 
     try {
       showLoadingDialog();
@@ -282,7 +295,6 @@ class CommonController extends GetxController {
       var responseJson = json.decode(response.body.toString());
       var data = SignUpModel.fromJson(responseJson);
       if (data.success == 1) {
-
         showToast('Successfully Sign Up. You can login now!');
         Get.offAll(const WelcomeScreen());
       }
@@ -347,7 +359,6 @@ class CommonController extends GetxController {
           showToast('Invalid Username or Password!');
           closeLoadingDialog();
         } else {
-
           AuthController authController = Get.find<AuthController>();
           authController.setUserData(user);
 
@@ -396,7 +407,8 @@ class CommonController extends GetxController {
       'Content-Type': 'application/json',
     };
     try {
-      var url = Uri.parse(AppConstant.getOrderUrl+'?username=${userModel.userName}');
+      var url = Uri.parse(
+          AppConstant.getOrderUrl + '?username=${userModel.userName}');
       Logger.debug(tag, 'Verify User API URL - ${url.toString()}');
 
       final response = await http.get(url, headers: header);
@@ -410,7 +422,7 @@ class CommonController extends GetxController {
           }
         }
         OrderListController orderListController =
-            Get.find<OrderListController>();
+        Get.find<OrderListController>();
         orderListController.setListData(allOrders);
       }
     } on SocketException catch (e) {
@@ -448,7 +460,8 @@ class CommonController extends GetxController {
       'Content-Type': 'application/json',
     };
     try {
-      var url = Uri.parse(AppConstant.getInvoiceUrl+'?username=${userModel.userName}');
+      var url = Uri.parse(
+          AppConstant.getInvoiceUrl + '?username=${userModel.userName}');
       Logger.debug(tag, 'Verify User API URL - ${url.toString()}');
 
       // var body = '{"username":"${userModel.userName}"}';
@@ -459,12 +472,12 @@ class CommonController extends GetxController {
       if (response.statusCode == 200) {
         for (int i = 0; i < responseJson.length; i++) {
           // if (responseJson[i]["username"] == userModel.userName) {
-            InvoiceModel invoiceModel = InvoiceModel.fromJson(responseJson[i]);
-            allInvoices.add(invoiceModel);
+          InvoiceModel invoiceModel = InvoiceModel.fromJson(responseJson[i]);
+          allInvoices.add(invoiceModel);
           // }
         }
         InvoiceController invoiceController =
-            Get.find<InvoiceController>();
+        Get.find<InvoiceController>();
         invoiceController.setInvoiceData(allInvoices);
       }
     } on SocketException catch (e) {
@@ -508,13 +521,14 @@ class CommonController extends GetxController {
       final response = await http.get(url, headers: header);
       var responseJson = jsonDecode(response.body);
       // print(responseJson[0]['id']);
-      if (response.statusCode == 200||response.statusCode == 201) {
+      if (response.statusCode == 200 || response.statusCode == 201) {
         for (int i = 0; i < responseJson.length; i++) {
-            AdminBankAccountModel data = AdminBankAccountModel.fromJson(responseJson[i]);
-            bankAccounts.add(data);
+          AdminBankAccountModel data = AdminBankAccountModel.fromJson(
+              responseJson[i]);
+          bankAccounts.add(data);
         }
         AdminAcccountsController adminAcccountsController =
-            Get.find<AdminAcccountsController>();
+        Get.find<AdminAcccountsController>();
         await adminAcccountsController.setBanks(bankAccounts);
       }
     } on SocketException catch (e) {
@@ -575,7 +589,7 @@ class CommonController extends GetxController {
           }
         }
         ServicesController servicesListController =
-            Get.find<ServicesController>();
+        Get.find<ServicesController>();
         servicesListController.setListData(allServices);
         update();
       }
@@ -633,7 +647,7 @@ class CommonController extends GetxController {
         for (int i = 0; i < responseJson.length; i++) {
           List<ServiceModel> serve = [];
           ServiceCatagoryModel serviceCatagoryModel =
-              await ServiceCatagoryModel.fromMap(responseJson[i]);
+          await ServiceCatagoryModel.fromMap(responseJson[i]);
           for (ServiceModel serviceModel in servicesList!) {
             if (serviceModel.category == serviceCatagoryModel.id) {
               serve.add(serviceModel);
@@ -681,10 +695,10 @@ class CommonController extends GetxController {
 
       final response = await http.get(url);
 
-      print("Hellooo: "+response.request.toString());
+      print("Hellooo: " + response.request.toString());
 
       var responseJson;
-      try{
+      try {
         responseJson = jsonDecode(response.body);
         if (response.statusCode == 200) {
           if (responseJson["status"] == "Successful") {
@@ -693,18 +707,19 @@ class CommonController extends GetxController {
             print(result.toString());
             await postOrderAPICall(result, imei, selectedService);
             closeLoadingDialog();
-             Get.to(()=>ResultDetailsScreen(result));
+            Get.to(() => ResultDetailsScreen(result));
           } else if (responseJson["status"] == "Rejected") {
             var error = responseJson['error'];
             // showToast(error);
             print(error.toString());
+            await postOrderAPICall(error, imei, selectedService);
             closeLoadingDialog();
-             Get.to(()=>ResultDetailsScreen(error));
+            Get.to(() => ResultDetailsScreen(error));
           }
         } else {
           print("Hellooo: Failleedd");
         }
-      }catch(e){
+      } catch (e) {
         // var json = jsonEncode(response.body);
         var response;
         var urls = url.toString();
@@ -723,7 +738,7 @@ class CommonController extends GetxController {
 
           print('First Part: $firstPart');
 
-          print("NEW URL: "+newUrl.toString());
+          print("NEW URL: " + newUrl.toString());
 
           // Make the API request
           final httpResponse = await http.get(newUrl);
@@ -733,20 +748,20 @@ class CommonController extends GetxController {
             response = 'JSON Response: ${httpResponse.body}';
             var json = jsonDecode(httpResponse.body);
             // showToast(json['result']);
-            if(json['result'].contains("Search Term:")){
-              await postOrderAPICall(json['result'],imei,selectedService);
-            }else if(json['result'].contains("Duplicate Order.")){
+            if (json['result'].contains("Search Term:")) {
+              await postOrderAPICall(json['result'], imei, selectedService);
+            } else if (json['result'].contains("Duplicate Order.")) {
               // showToast("Duplicate Error");
-              await postOrderAPICall(json['result'],imei,selectedService);
-            } else if(json['result'].contains("Not Found")){
+              await postOrderAPICall(json['result'], imei, selectedService);
+            } else if (json['result'].contains("Not Found")) {
               // showToast(json['result'].toString());
-              await postOrderAPICall(json['result'],imei,selectedService);
-            }else{
+              await postOrderAPICall(json['result'], imei, selectedService);
+            } else {
               // showToast("Something went wrong");
-              await postOrderAPICall(json['result'],imei,selectedService);
+              await postOrderAPICall(json['result'], imei, selectedService);
             }
             closeLoadingDialog();
-            Get.to(()=>ResultDetailsScreen(json['result']));
+            Get.to(() => ResultDetailsScreen(json['result']));
           } else {
             response = 'Request failed with status: ${httpResponse.statusCode}';
             closeLoadingDialog();
@@ -787,6 +802,7 @@ class CommonController extends GetxController {
       rethrow;
     }
   }
+
   /// Multiple Orders places
   Future findImeiBulkResults(String imei, ServiceModel selectedService) async {
     try {
@@ -795,10 +811,10 @@ class CommonController extends GetxController {
 
       final response = await http.get(url);
 
-      print("Hellooo: "+response.request.toString());
+      print("Hellooo: " + response.request.toString());
 
       var responseJson;
-      try{
+      try {
         responseJson = jsonDecode(response.body);
         if (response.statusCode == 200) {
           if (responseJson["status"] == "Successful") {
@@ -816,7 +832,7 @@ class CommonController extends GetxController {
         } else {
           print("Hellooo: Failleedd");
         }
-      }catch(e){
+      } catch (e) {
         // var json = jsonEncode(response.body);
         var response;
         var urls = url.toString();
@@ -835,7 +851,7 @@ class CommonController extends GetxController {
 
           print('First Part: $firstPart');
 
-          print("NEW URL: "+newUrl.toString());
+          print("NEW URL: " + newUrl.toString());
 
           // Make the API request
           final httpResponse = await http.get(newUrl);
@@ -845,17 +861,17 @@ class CommonController extends GetxController {
             response = 'JSON Response: ${httpResponse.body}';
             var json = jsonDecode(httpResponse.body);
             // showToast(json['result']);
-            if(json['result'].contains("Search Term:")){
-              await postOrderAPICall(json['result'],imei,selectedService);
-            }else if(json['result'].contains("Duplicate Order.")){
+            if (json['result'].contains("Search Term:")) {
+              await postOrderAPICall(json['result'], imei, selectedService);
+            } else if (json['result'].contains("Duplicate Order.")) {
               // showToast("Duplicate Error");
-              await postOrderAPICall(json['result'],imei,selectedService);
-            } else if(json['result'].contains("Not Found")){
+              await postOrderAPICall(json['result'], imei, selectedService);
+            } else if (json['result'].contains("Not Found")) {
               // showToast(json['result'].toString());
-              await postOrderAPICall(json['result'],imei,selectedService);
-            }else{
+              await postOrderAPICall(json['result'], imei, selectedService);
+            } else {
               // showToast("Something went wrong");
-              await postOrderAPICall(json['result'],imei,selectedService);
+              await postOrderAPICall(json['result'], imei, selectedService);
             }
             // closeLoadingDialog();
             // Get.to(()=>ResultDetailsScreen(json['result']));
@@ -901,8 +917,8 @@ class CommonController extends GetxController {
     }
   }
 
-  Future postOrderAPICall(
-      String result, String imei, ServiceModel selectedService) async {
+  Future postOrderAPICall(String result, String imei,
+      ServiceModel selectedService) async {
     print("POST FUNCTION");
     AuthController authController = Get.find<AuthController>();
     try {
@@ -910,9 +926,8 @@ class CommonController extends GetxController {
         "Accept": "application/json",
         'Content-Type': 'application/json',
       };
-      print("BEFORE: "+result.toString());
-      if(result.contains("</font>")){
-
+      print("BEFORE: " + result.toString());
+      if (result.contains("</font>")) {
         // Parse the HTML string
         html.DocumentFragment document = parseFragment(result);
 
@@ -927,9 +942,29 @@ class CommonController extends GetxController {
         // Get the updated string without font tags
         result = document.text!;
 
-        print("\n\nAFTER: "+result.toString());
+        print("\n\nAFTER: " + result.toString());
       }
-      var body = '{"status": "Success","service": "${selectedService.id}","imei":"${imei.trim()}","result":"${result.trim()}","credits":"${selectedService.cost.trim()}","username":"${authController.userModel!.userName.trim()}"}';
+      if (result.contains("</span>")) {
+        // Parse the HTML string
+        html.DocumentFragment document = parseFragment(result);
+
+        // Get all font elements
+        List<html.Element> spanElement = document.querySelectorAll('span');
+
+        // Remove the font elements from the document
+        for (var spanElement in spanElement) {
+          spanElement.remove();
+        }
+
+        // Get the updated string without font tags
+        result = document.text!;
+
+        print("\n\nAFTER: " + result.toString());
+      }
+      var body = '{"status": "Success","service": "${selectedService
+          .id}","imei":"${imei.trim()}","result":"${result
+          .trim()}","credits":"${selectedService.cost
+          .trim()}","username":"${authController.userModel!.userName.trim()}"}';
 
       var url = Uri.parse(
         AppConstant.postOrderUrl,
@@ -943,28 +978,28 @@ class CommonController extends GetxController {
 
       var responseJson = jsonDecode(response.body);
 
-      print("Post Result: "+responseJson["success"].toString());
+      print("Post Result: " + responseJson["success"].toString());
 
-      if(responseJson["success"]==1){
-        print("HI:: "+responseJson.toString());
+      if (responseJson["success"] == 1) {
+        print("HI:: " + responseJson.toString());
         showToast(responseJson['message'].toString());
         var currentAmount = authController.userModel!.wallet;
-        var latestAmount = double.parse(currentAmount.toString())-double.parse(selectedService.cost.toString());
+        var latestAmount = double.parse(currentAmount.toString()) -
+            double.parse(selectedService.cost.toString());
         authController.updateWallet(latestAmount.toString());
         await updateWallet(latestAmount);
         closeLoadingDialog();
       }
-     else if(responseJson["success"]==0){
-        print("HI:: "+responseJson.toString());
+      else if (responseJson["success"] == 0) {
+        print("HI:: " + responseJson.toString());
         showToast(responseJson['message'].toString());
         var currentAmount = authController.userModel!.wallet;
-        var latestAmount = double.parse(currentAmount.toString())-double.parse(selectedService.cost.toString());
+        var latestAmount = double.parse(currentAmount.toString()) -
+            double.parse(selectedService.cost.toString());
         authController.updateWallet(latestAmount.toString());
         await updateWallet(latestAmount);
         closeLoadingDialog();
       }
-
-
     } on SocketException catch (e) {
       // closeLoadingDialog();
       Logger.error(tag, 'Socket Exception- ${e.toString()}');
@@ -992,19 +1027,23 @@ class CommonController extends GetxController {
     }
   }
 
-  Future profileUpdateApiCall(userName,TextEditingController name,TextEditingController email,TextEditingController phone,TextEditingController Password)async{
-    AuthController authController=Get.find<AuthController>();
+  Future profileUpdateApiCall(userName, TextEditingController name,
+      TextEditingController email, TextEditingController phone,
+      TextEditingController Password) async {
+    AuthController authController = Get.find<AuthController>();
 
     Map<String, String> header = {
       "Accept": "application/json",
       'Content-Type': 'application/json',
     };
     var body =
-        '{"email": "${email.text.trim()}","username": "${userName.trim()}","name": "${name.text.trim()}","phone": "${phone.text.trim()}"}';
+        '{"email": "${email.text.trim()}","username": "${userName
+        .trim()}","name": "${name.text.trim()}","phone": "${phone.text
+        .trim()}"}';
 
-    try{
+    try {
       var url = Uri.parse(
-        AppConstant.editProfileUrl);
+          AppConstant.editProfileUrl);
       Logger.debug(tag, 'Verify User API URL - ${url.toString()}');
       Logger.debug(tag, 'Verify User Request Body - ${body.toString()}');
       final response = await http.post(
@@ -1013,20 +1052,21 @@ class CommonController extends GetxController {
         body: body,
       );
       var responseJson = jsonDecode(response.body);
-      if(response.statusCode==201){
-        if(responseJson['message']=="Data Inserted Successfully."){
-          authController.userModel!.name=name.text;
-          authController.userModel!.email=email.text;
-          authController.userModel!.phone=phone.text;
+      if (response.statusCode == 201) {
+        if (responseJson['message'] == "Data Inserted Successfully.") {
+          authController.userModel!.name = name.text;
+          authController.userModel!.email = email.text;
+          authController.userModel!.phone = phone.text;
           showToast("Profile updated successfuly");
           update();
         }
       }
 
-      if(Password.text!=null||Password.text!=""){
+      if (Password.text != null || Password.text != "") {
         var url2 = Uri.parse(
             AppConstant.editPasswordUrl);
-var body2='{"username": "${userName.trim()}","password":"${Password.text.trim()}"}';
+        var body2 = '{"username": "${userName.trim()}","password":"${Password
+            .text.trim()}"}';
         Logger.debug(tag, 'Verify User API URL - ${url2.toString()}');
         Logger.debug(tag, 'Verify User Request Body - ${body.toString()}');
         final response2 = await http.post(
@@ -1035,23 +1075,18 @@ var body2='{"username": "${userName.trim()}","password":"${Password.text.trim()}
           body: body2,
         );
         var responseJson2 = jsonDecode(response2.body);
-        if(response2.statusCode==201){
-          if(responseJson2['message']=="Data Inserted Successfully."){
-            authController.userModel!.name=name.text;
-            authController.userModel!.email=email.text;
-            authController.userModel!.phone=phone.text;
+        if (response2.statusCode == 201) {
+          if (responseJson2['message'] == "Data Inserted Successfully.") {
+            authController.userModel!.name = name.text;
+            authController.userModel!.email = email.text;
+            authController.userModel!.phone = phone.text;
             showToast("Password updated successfuly");
             update();
-
           }
         }
-
       }
       Get.back();
-
-
-
-    }on SocketException catch (e) {
+    } on SocketException catch (e) {
       closeLoadingDialog();
       Logger.error(tag, 'Socket Exception- ${e.toString()}');
       showAlert(
@@ -1078,10 +1113,11 @@ var body2='{"username": "${userName.trim()}","password":"${Password.text.trim()}
     }
   }
 
-  Future InvoicePost(amount, paymentType,context)async{
+  Future InvoicePost(amount, paymentType, context) async {
     InvoiceModel invoiceModel = InvoiceModel();
     AuthController authController = Get.find<AuthController>();
-    BankTransferController bankTransferController = Get.find<BankTransferController>();
+    BankTransferController bankTransferController = Get.find<
+        BankTransferController>();
     DateTime now = DateTime.now();
 
     int day = now.day;
@@ -1099,7 +1135,11 @@ var body2='{"username": "${userName.trim()}","password":"${Password.text.trim()}
       next *= 10;
     }
     print(next.toInt());
-    var body = '{"username": "${authController.userModel?.userName}", "invoice_no": "${next.toInt()}", "total_amount": "${amount}", "inv_date": "${selectedDate}", "due_date": "${selectedDate}","suply_date": "${selectedDate}","payment_method": "${paymentType}", "status": "UnPaid", "prof": "1049", "payment_id": "${next.toInt()}", "payer_id": "${authController.userModel?.id}", "payer_email": "${authController.userModel?.email}"}';
+    var body = '{"username": "${authController.userModel
+        ?.userName}", "invoice_no": "${next
+        .toInt()}", "total_amount": "${amount}", "inv_date": "${selectedDate}", "due_date": "${selectedDate}","suply_date": "${selectedDate}","payment_method": "${paymentType}", "status": "UnPaid", "prof": "1049", "payment_id": "${next
+        .toInt()}", "payer_id": "${authController.userModel
+        ?.id}", "payer_email": "${authController.userModel?.email}"}';
 
     try {
       showLoadingDialog();
@@ -1114,11 +1154,12 @@ var body2='{"username": "${userName.trim()}","password":"${Password.text.trim()}
       // closeLoadingDialog();
       var responseJson = jsonDecode(response.body);
       print("GASAA: ${responseJson}");
-      print("SLAJKLSDLISADJKALKSJDLKSAJDL:SAKDJ:LSADK:LSADK:SLADKAL:SDKS:LADKS:ALDKA:SLDK:SLADK:ASLDK:ASLDK");
+      print(
+          "SLAJKLSDLISADJKALKSJDLKSAJDL:SAKDJ:LSADK:LSADK:SLADKAL:SDKS:LADKS:ALDKA:SLDK:SLADK:ASLDK:ASLDK");
 
       print(response.statusCode.toString());
 
-          if(response.statusCode==200 ||response.statusCode==201){
+      if (response.statusCode == 200 || response.statusCode == 201) {
         if (responseJson['success'] == 1) {
           if (responseJson['message'] == 'Data Inserted Successfully.') {
             invoiceModel = await InvoiceModel(
@@ -1136,7 +1177,7 @@ var body2='{"username": "${userName.trim()}","password":"${Password.text.trim()}
                 payerEmail: "${authController.userModel?.email}");
             await getAllInvoices(authController.userModel!);
             closeLoadingDialog();
-                Get.to(()=>TopUpHistoryScreen());
+            Get.to(() => TopUpHistoryScreen());
             // showDialog(context: context, builder: (builder){
             //   return TransactionPopup(invoiceModel: invoiceModel);
             //
@@ -1148,7 +1189,7 @@ var body2='{"username": "${userName.trim()}","password":"${Password.text.trim()}
             // await bankTransferController.setInvoiceData(invoiceModel);
           }
         }
-      }else {
+      } else {
         closeLoadingDialog();
         print("Something's wrong with server. Try again later");
       }
@@ -1177,15 +1218,14 @@ var body2='{"username": "${userName.trim()}","password":"${Password.text.trim()}
           description: " Exception");
       rethrow;
     }
-
-
-
   }
 
-  Future<InvoiceModel> InvoicePostByBank(payerId,paymentId,paymentMethod,payerEmail,amount)async{
+  Future<InvoiceModel> InvoicePostByBank(payerId, paymentId, paymentMethod,
+      payerEmail, amount) async {
     InvoiceModel invoiceModel = InvoiceModel();
     AuthController authController = Get.find<AuthController>();
-    BankTransferController bankTransferController = Get.find<BankTransferController>();
+    BankTransferController bankTransferController = Get.find<
+        BankTransferController>();
     DateTime now = DateTime.now();
 
 
@@ -1200,7 +1240,9 @@ var body2='{"username": "${userName.trim()}","password":"${Password.text.trim()}
       next *= 10;
     }
     print(next.toInt());
-    var body = '{"username": "${authController.userModel?.userName}", "invoice_no": "${next.toInt()}", "total_amount": "${amount}", "inv_date": "${formattedDate}", "due_date": "${formattedDate}","suply_date": "${formattedDate}","payment_method": "${paymentMethod}", "status": "Paid", "prof": "1049", "payment_id": "${paymentId}", "payer_id": "${payerId}", "payer_email": "${payerEmail}"}';
+    var body = '{"username": "${authController.userModel
+        ?.userName}", "invoice_no": "${next
+        .toInt()}", "total_amount": "${amount}", "inv_date": "${formattedDate}", "due_date": "${formattedDate}","suply_date": "${formattedDate}","payment_method": "${paymentMethod}", "status": "Paid", "prof": "1049", "payment_id": "${paymentId}", "payer_id": "${payerId}", "payer_email": "${payerEmail}"}';
 
     try {
       // showLoadingDialog();
@@ -1216,7 +1258,7 @@ var body2='{"username": "${userName.trim()}","password":"${Password.text.trim()}
       var responseJson = jsonDecode(response.body);
       print(response.statusCode.toString());
 
-          if(response.statusCode==200 ||response.statusCode==201){
+      if (response.statusCode == 200 || response.statusCode == 201) {
         if (responseJson['success'] == 1) {
           if (responseJson['message'] == 'Data Inserted Successfully.') {
             // closeLoadingDialog();
@@ -1236,18 +1278,17 @@ var body2='{"username": "${userName.trim()}","password":"${Password.text.trim()}
 
             // closeLoadingDialog();
             CommonController common = Get.find<CommonController>();
-            await bankTransferController.setCount(1,true);
+            await bankTransferController.setCount(1, true);
             await bankTransferController.setBankInvoice(invoiceModel);
             await common.getAllInvoices(authController.userModel!);
             return invoiceModel;
-
           } else {
             closeLoadingDialog();
             return invoiceModel;
             // await bankTransferController.setInvoiceData(invoiceModel);
           }
         }
-      }else {
+      } else {
         closeLoadingDialog();
         print("Something's wrong with server. Try again later");
         return invoiceModel;
@@ -1282,7 +1323,7 @@ var body2='{"username": "${userName.trim()}","password":"${Password.text.trim()}
     return invoiceModel;
   }
 
-  Future getAllUserNames()async{
+  Future getAllUserNames() async {
     List<String> userNames = [];
     // AuthController authController = Get.find<AuthController>();
     Map<String, String> header = {
@@ -1297,14 +1338,14 @@ var body2='{"username": "${userName.trim()}","password":"${Password.text.trim()}
       final response = await http.get(url, headers: header);
       var responseJson = jsonDecode(response.body);
 
-      if (response.statusCode == 200 ||response.statusCode == 201) {
+      if (response.statusCode == 200 || response.statusCode == 201) {
         for (int i = 0; i < responseJson.length; i++) {
           // print(responseJson[i]['username']);
           userNames.add(responseJson[i]['username']);
           // print("USERS NAME: ${responseJson[i]['username']}");
         }
         await setUserNames(userNames);
-      }else{
+      } else {
         showToast("ERROR ${response.statusCode}");
       }
     } on SocketException catch (e) {
@@ -1334,10 +1375,11 @@ var body2='{"username": "${userName.trim()}","password":"${Password.text.trim()}
     }
   }
 
-  Future<bool> checkUserExists(username)async{
-     return userNames.any((element) => element == username);
+  Future<bool> checkUserExists(username) async {
+    return userNames.any((element) => element == username);
   }
-  Future<bool> updatePassword(username,password)async{
+
+  Future<bool> updatePassword(username, password) async {
     // AuthController authController = Get.find<AuthController>();
     Map<String, String> header = {
       "Accept": "application/json",
@@ -1345,7 +1387,8 @@ var body2='{"username": "${userName.trim()}","password":"${Password.text.trim()}
     };
 
     var url = Uri.parse(AppConstant.editPasswordUrl);
-    var body='{"username": "${username.trim()}","password":"${password.trim()}"}';
+    var body = '{"username": "${username.trim()}","password":"${password
+        .trim()}"}';
     Logger.debug(tag, 'Verify User API URL - ${url.toString()}');
     Logger.debug(tag, 'Verify User Request Body - ${body.toString()}');
     final response2 = await http.post(
@@ -1354,21 +1397,98 @@ var body2='{"username": "${userName.trim()}","password":"${Password.text.trim()}
       body: body,
     );
     var responseJson2 = jsonDecode(response2.body);
-    if(response2.statusCode==201){
-      if(responseJson2['message']=="Data Inserted Successfully."){
+    if (response2.statusCode == 201) {
+      if (responseJson2['message'] == "Data Inserted Successfully.") {
         showToast("Password updated successfuly");
         update();
         return true;
       }
-      else{
+      else {
         return false;
       }
-    }else{
+    } else {
       showToast("Something went wrong");
       return false;
     }
-
   }
+
+  Future<File?> getImageFromGallery() async {
+    final pickedFile = await ImagePicker().getImage(
+        source: ImageSource.gallery);
+    if (pickedFile != null) {
+      await setProfImage(File(pickedFile.path));
+      return File(pickedFile.path);
+    }
+    return null;
+  }
+
+  Future<File?> captureImageFromCamera() async {
+    final pickedFile = await ImagePicker().getImage(source: ImageSource.camera);
+    if (pickedFile != null) {
+      await setProfImage(File(pickedFile.path));
+      return File(pickedFile.path);
+    }
+    return null;
+  }
+
+  Future SendMail(List<String> imei) async {
+    String userNames = "app@imeicheck.uk";
+    String password = "Pakist@n@123";
+
+
+    // final smtpServer = gmail(userNames, password);
+    final smtpServer = SmtpServer("mail.imeicheck.uk",port: 465,ssl: true,username: userNames,password: password,allowInsecure: true,ignoreBadCertificate: true,name: "IMEI CHECK");
+    AuthController authController = Get.find<AuthController>();
+
+
+    final message = Message()
+      ..from = Address(userNames,'IMEI CHECK')
+      // ..recipients.add('huzaifamughal076@gmail.com')
+      ..recipients.add(authController.userModel?.email.toString())
+    // ..ccRecipients.addAll(['destCc1@example.com', 'destCc2@example.com'])
+    // ..bccRecipients.add(Address('bccAddress@example.com'))
+      ..subject = 'IMEI CHECK'
+      ..html = "<p>You have checked these Imei<br> ${imei.toList().toString()}<br></p>\n<p><h3>Thanks for using IMEI CHECK</h3></p>";
+
+    try {
+      print("Accessing");
+      final sendReport = await send(message, smtpServer);
+      // showToast("We have sent you the")
+      print('Message sent: ' + sendReport.toString());
+    } on MailerException catch (e) {
+      print('Message not sent. ${e.message.toString()} / ${e.problems.toList().toString()}');
+      for (var p in e.problems) {
+        print('Problem: ${p.code}: ${p.msg}');
+      }
+    }
+  }
+
+  Future<Map<String, dynamic>> postData(String id, File prof) async {
+    var url = Uri.parse('https://imeicheck.uk/api/invoiceproof.php');
+
+    var request = http.MultipartRequest('POST', url);
+    request.fields['id'] = id;
+    request.files.add(await http.MultipartFile.fromPath('prof', prof.path));
+
+    var response = await request.send();
+
+    if (response.statusCode == 200) {
+      var responseJson = await response.stream.bytesToString();
+      showToast("Proof has been uploaded");
+      print(responseJson.toString());
+      return {
+        'success': true,
+        'data': responseJson,
+      };
+    } else {
+      showToast("Please try again");
+      return {
+        'success': false,
+        'error': response.reasonPhrase,
+      };
+    }
+  }
+
 
 
 }

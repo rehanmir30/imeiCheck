@@ -17,12 +17,36 @@ import '../../widgets/app_widgets.dart';
 import '../../widgets/result_history.dart';
 import '../../widgets/text_fields.dart';
 
-class BulkResultDetailScreen extends StatelessWidget {
+class BulkResultDetailScreen extends StatefulWidget {
   List<dynamic> result;
   BulkResultDetailScreen(this.result,{Key? key}) : super(key: key);
-  final tag = 'BulkResultDetailScreen ';
-  // final CommonController controller = Get.find<CommonController>();
 
+  @override
+  State<BulkResultDetailScreen> createState() => _BulkResultDetailScreenState();
+}
+
+class _BulkResultDetailScreenState extends State<BulkResultDetailScreen> {
+  final tag = 'BulkResultDetailScreen ';
+  List<String> imei = [];
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    SendMail();
+  }
+
+  SendMail()async{
+    CommonController controller = Get.find<CommonController>();
+    for(var i in widget.result){
+      imei.add(i+"<br><br>");
+    }
+    if(controller.bulkEmailCheckBoxValue.value==true){
+     await controller.SendMail(imei);
+    }
+  }
+
+  // final CommonController controller = Get.find<CommonController>();
   @override
   Widget build(BuildContext context) {
     return CommonScaffold(
@@ -60,13 +84,7 @@ class BulkResultDetailScreen extends StatelessWidget {
 
                   ],
                 ),
-                Center(
-                  child: AppWidgets.cachedNetworkImage(
-                    ImagesPath.iPhoneNetWorkImage,
-                    height: 110,
-                    width: 300,
-                  ),
-                ),
+
                 Container(
                   margin: AppWidgets.edgeInsetsSymmetric(horizontal: 4, vertical: 5),
                   padding: AppWidgets.edgeInsetsAll(10),
@@ -79,11 +97,11 @@ class BulkResultDetailScreen extends StatelessWidget {
                     shrinkWrap: true,
                       primary: false,
                       itemBuilder: (context, index) {
-                    return HtmlWidget(result[index]??"No Simialar data Found");
+                    return HtmlWidget(widget.result[index]??"No Simialar data Found");
                   }, separatorBuilder: (context, index) {
                     return Divider(height: 2,color: Colors.black.withOpacity(0.4),);
 
-                  }, itemCount: result.length),
+                  }, itemCount: widget.result.length),
 
 
                 ),
@@ -97,5 +115,4 @@ class BulkResultDetailScreen extends StatelessWidget {
 
     );
   }
-
 }

@@ -277,7 +277,7 @@ Map<String,dynamic>? paymentIntents;
               ),
             ));
 
-        await bankTransferController.setWallet(model.amount.toString());
+        await bankTransferController.setWallet(_enterAmountTextEditingController.text.toString());
          await commonController.InvoicePostByBank( model.clientSecret,model.id,"Stripe",authController.userModel?.email,_enterAmountTextEditingController.text);
          closeLoadingDialog();
          Get.back();

@@ -16,12 +16,30 @@ import '../../widgets/app_widgets.dart';
 import '../../widgets/result_history.dart';
 import '../../widgets/text_fields.dart';
 
-class ResultDetailsScreen extends StatelessWidget {
+class ResultDetailsScreen extends StatefulWidget {
   var result;
   ResultDetailsScreen(this.result,{Key? key}) : super(key: key);
-  final tag = 'ResultDetailsScreen ';
-  // final CommonController controller = Get.find<CommonController>();
 
+  @override
+  State<ResultDetailsScreen> createState() => _ResultDetailsScreenState();
+}
+
+class _ResultDetailsScreenState extends State<ResultDetailsScreen> {
+  final tag = 'ResultDetailsScreen ';
+  List<String> imei= [];
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    CommonController controller = Get.find<CommonController>();
+
+    imei.add(widget.result);
+    if(controller.bulkEmailCheckBoxValue.value==true){
+      controller.SendMail(imei);
+    }
+  }
+
+  // final CommonController controller = Get.find<CommonController>();
   @override
   Widget build(BuildContext context) {
     return CommonScaffold(
@@ -57,17 +75,18 @@ class ResultDetailsScreen extends StatelessWidget {
 
                       ),
                     ),
-
                   ],
                 ),
-                Center(
-                  child: AppWidgets.cachedNetworkImage(
-                    ImagesPath.iPhoneNetWorkImage,
-                    height: 110,
-                    width: 300,
-                  ),
-                ),
-                Container(
+                // Center(
+                //   child: AppWidgets.cachedNetworkImage(
+                //     ImagesPath.iPhoneNetWorkImage,
+                //     height: 110,
+                //     width: 300,
+                //   ),
+                // ),
+                (widget.result==null||widget.result=="")
+                    ?Center(child: Text("No Data Found"),)
+                    :Container(
                   margin: AppWidgets.edgeInsetsSymmetric(horizontal: 4, vertical: 5),
                   padding: AppWidgets.edgeInsetsAll(10),
                   decoration: BoxDecoration(
@@ -75,7 +94,7 @@ class ResultDetailsScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(20.0).r,
 
                   ),
-                  child: HtmlWidget('<p>${result}</p>',renderMode: RenderMode.column,),
+                  child: HtmlWidget('<p>${widget.result}</p>',renderMode: RenderMode.column,),
 
 
                 ),
@@ -93,6 +112,4 @@ class ResultDetailsScreen extends StatelessWidget {
 
 
   }
-
-
 }

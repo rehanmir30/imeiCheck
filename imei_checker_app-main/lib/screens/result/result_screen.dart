@@ -38,14 +38,10 @@ class _ResultScreenState extends State<ResultScreen> {
   AuthController authController = Get.find<AuthController>();
 
   List<OrderModel> searchList = [];
-  List<OrderModel> filteredList=[];
 
 
   @override
   Widget build(BuildContext context) {
-    setState(() {
-       filteredList = orderListController.userAllOrders!;
-    });
     return CommonScaffold(
       appBarTitle: 'RESULT',
       body: LiquidPullToRefresh(
@@ -101,12 +97,12 @@ class _ResultScreenState extends State<ResultScreen> {
                       //
                       // (searchList.isEmpty)?filteredList[index].result=filteredList![index].result.replaceAll("<br>"," "):searchList[index].result=searchList[index].result.replaceAll("<br>"," ");
 
-                      var jsonEncoded=(controller.searching==false)?jsonEncode(filteredList![index].result):jsonEncode(searchList[index].result);
+                      var jsonEncoded=(controller.searching==false)?jsonEncode(orderListController.userAllOrders![index].result):jsonEncode(searchList[index].result);
                       // print("Helloooo: "+jsonEncoded.toString());
                       return OrderTileWidget(
-                        status: (controller.searching==false)?filteredList![index].status:searchList[index].status,
-                        titleId: (controller.searching==false)?filteredList![index].imei:searchList[index].imei,
-                        result:  (controller.searching==false)?filteredList[index].result:searchList[index].result,
+                        status: (controller.searching==false)?orderListController.userAllOrders![index].status:searchList[index].status,
+                        titleId: (controller.searching==false)?orderListController.userAllOrders![index].imei:searchList[index].imei,
+                        result:  (controller.searching==false)?orderListController.userAllOrders![index].result:searchList[index].result,
                       );
                     }),
               ),

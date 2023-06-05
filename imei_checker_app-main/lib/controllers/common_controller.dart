@@ -416,7 +416,7 @@ class CommonController extends GetxController {
       // print(responseJson[0]['id']);
       if (response.statusCode == 200) {
         for (int i = 0; i < responseJson.length; i++) {
-          if (responseJson[i]["username"] == userModel.userName) {
+          if (responseJson[i]["username"].toLowerCase() == userModel.userName.toLowerCase()) {
             OrderModel orderModel = OrderModel.fromMap(responseJson[i]);
             allOrders.add(orderModel);
           }
@@ -424,6 +424,7 @@ class CommonController extends GetxController {
         OrderListController orderListController =
         Get.find<OrderListController>();
         orderListController.setListData(allOrders);
+        print("COUNT: "+allOrders.length.toString());
       }
     } on SocketException catch (e) {
       // closeLoadingDialog();

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:get/get.dart';
+import 'package:imei/controllers/common_controller.dart';
 import 'package:imei/screens/add_fund/add_fund_enter_amount.dart';
 import 'package:imei/screens/add_fund/add_fund_screen.dart';
 import 'package:imei/screens/add_fund/top_up_history_screen.dart';
@@ -20,8 +21,6 @@ import 'screens/result/result_details_screen.dart';
 import 'utils/routes.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  //Assign publishable key to flutter_stripe
-  Stripe.publishableKey = "pk_test_51ND5WZL4c8dEbwgLG6vJC4V93XfwLQ11lMN4g2YzqE8uHqrFlFQRbHQUHvTtvkVX5CCfwDhWSToLUAnMG4EkuQHR00WnSmoY3S";
 
   await ScreenUtil.ensureScreenSize();
   SystemChrome.setPreferredOrientations([
@@ -36,13 +35,13 @@ void main() async {
         builder: (BuildContext context, Widget? child) {
           return GetMaterialApp(
             title: AppConstant.appName,
-
             debugShowCheckedModeBanner: false,
             initialRoute: PageRoutes.splashPage,
             initialBinding: ControllersBinding(),
               home:  const SplashScreen(),
 
           );
+
         },
       ));
 }

@@ -26,14 +26,15 @@ class PaypalPayment extends StatefulWidget {
 
 class _PaypalPaymentState extends State<PaypalPayment> {
   AuthController authController = Get.find<AuthController>();
+  CommonController commonController = Get.find<CommonController>();
   @override
   Widget build(BuildContext context) {
     return UsePaypal(
         sandboxMode: true,
         clientId:
-        "AQ1uLtsTHhGFqwNbwiWQt8oxNAoJtYwJ90_TvuYOixvOIfbFXd3Y9Cx5O6cJhPq-8ljtf9yN3AB5voMx",
+        "${commonController.bankKeyModel!.paypalClientId}",
         secretKey:
-        "EKm3aFddHE2wwdgnpiRzJ6W_On-99t5UfqdnggfH-tLst4atGqJoIK1u-CEyCIuNKwx8MDMf9Eo2sfFv",
+        "${commonController.bankKeyModel!.paypalClientSecret}",
         returnURL: "https://samplesite.com/return",
         cancelURL: "https://samplesite.com/cancel",
         transactions: [
@@ -92,7 +93,6 @@ class _PaypalPaymentState extends State<PaypalPayment> {
           InvoiceModel invoice = await commonController.InvoicePostByBank( payerId,paymentId,paymentMethod,payerEmail,amount);
 
           Get.back();
-          Get.to(()=>TopUpHistoryScreen());
           // Get.back(result: invoiceModel);
           return invoice;
          // Get.back(result: invoiceModel);

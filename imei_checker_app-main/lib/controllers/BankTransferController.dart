@@ -6,6 +6,8 @@ import 'package:imei/model/InvoiceModel.dart';
 import 'package:imei/model/InvoicePost.dart';
 
 class BankTransferController extends GetxController{
+
+
   InvoiceModel _invoiceModel=InvoiceModel();
   InvoiceModel get invoiceModel=>_invoiceModel;
 

@@ -135,6 +135,7 @@ ServicesController servicesController=Get.find<ServicesController>();
             borderRadius: BorderRadius.circular(15.0).r,
             buttonTextStyle: AppTextStyles.black18W600TextStyle,
             buttonOnPressed: () async {
+              List<String> imei= [];
               if(_imeiNumberTextEditingController==null||_imeiNumberTextEditingController.text==""||_imeiNumberTextEditingController.text==null){
                 showToast("IMEI number is required");
                 return;
@@ -144,11 +145,13 @@ ServicesController servicesController=Get.find<ServicesController>();
                   showToast("Insufficient amount");
                 }else{
                   if(controller.bulkDuplicateCheckBoxValue.value==true){
+
                     OrderListController orderController = Get.find<OrderListController>();
                     OrderModel? duplicateOrder = findFirstMatch(orderController.userAllOrders!, _imeiNumberTextEditingController.text);
                     if(duplicateOrder?.imei==null||duplicateOrder?.imei==""){
                       showToast("No Imei Found");
                     }else{
+                      imei.add(duplicateOrder?.result);
                       showDialog(context: context, builder: (context) {
                         return AlertDialog(
                           title: Text("Similar Imei Found"),
@@ -175,9 +178,15 @@ ServicesController servicesController=Get.find<ServicesController>();
                             ],),
                         );
                       },);
+
+                     // if(controller.bulkEmailCheckBoxValue.value==true){
+                     //   await controller.SendMail(imei);
+                     // }
                     }
 
                   }else{
+                    List<String> imei= [];
+                    imei.add(_imeiNumberTextEditingController.text);
                     showLoadingDialog();
                     await controller.findImeiResults(_imeiNumberTextEditingController.text,selectedService);
                     await controller.getAllOrders(authController.userModel!);

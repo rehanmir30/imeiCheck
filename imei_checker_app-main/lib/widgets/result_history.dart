@@ -33,8 +33,6 @@ class ResultHistoryWidget extends StatelessWidget {
             child: InkWell(
 
               onTap: ()async{
-                // Get.to(ResultDetailsScreen());
-
                   showDialog(
                     context: context,
                     builder: (BuildContext context) {
@@ -57,7 +55,7 @@ class ResultHistoryWidget extends StatelessWidget {
                         children: [
                           AppWidgets.text(
                             status.toString(),
-                            style:  (status=="Paid")?AppTextStyles.green12TextStyle:AppTextStyles.red12TextStyle,
+                            style:  (status=="Paid"||status=="paid")?AppTextStyles.green12TextStyle:(status=="UnPaid" ||status=="Rejected"||status=="rejected")?AppTextStyles.orange12TextStyle:AppTextStyles.red12TextStyle,
                           ),
                           AppWidgets.text(
                             titleId.toString(),

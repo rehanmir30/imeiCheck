@@ -36,6 +36,7 @@ class _AddFundEnterAmountScreenState extends State<AddFundEnterAmountScreen> {
   final TextEditingController _enterAmountTextEditingController = TextEditingController();
 
   AuthController authController = Get.find<AuthController>();
+  CommonController commonController = Get.find<CommonController>();
 Map<String,dynamic>? paymentIntents;
 
   @override
@@ -109,6 +110,10 @@ Map<String,dynamic>? paymentIntents;
                            BankTransferController controller = Get.find<BankTransferController>();
 
                           await Get.to(()=>PaypalPayment(_enterAmountTextEditingController.text, contexts));
+
+                          // await Future.delayed(Duration(seconds: 2),(){
+                          //   Get.to(()=>TopUpHistoryScreen());
+                          // });
 
                          }else if(widget.SelectedBankPaymentMethod=="Stripe"){
 
@@ -196,9 +201,11 @@ Map<String,dynamic>? paymentIntents;
       await strip.Stripe.instance
           .initPaymentSheet(
           paymentSheetParameters: strip.SetupPaymentSheetParameters(
-              paymentIntentClientSecret: paymentIntents![
-              'client_secret'], //Gotten from payment intent
+              paymentIntentClientSecret: paymentIntents!['client_secret'], //Gotten from payment intent
               style: ThemeMode.dark,
+              googlePay: strip.PaymentSheetGooglePay(currencyCode: 'PK',merchantCountryCode: 'US',),
+              setupIntentClientSecret: paymentIntents!['client_secret'],
+              appearance: strip.PaymentSheetAppearance(shapes: strip.PaymentSheetShape(borderRadius: 10)),
               merchantDisplayName: authController.userModel!.userName.toString()))
           .then((value) {
         // Modeling.StripePayementModel  model  =  Modeling.StripePayementModel.fromJson(paymentIntents!);
@@ -216,25 +223,32 @@ Map<String,dynamic>? paymentIntents;
       throw Exception(err);
     }
   }
+
+  calculateAmount(String amount){
+    final price = int.parse(amount)*100;
+    return price;
+  }
   createPaymentIntent(String amount, String currency) async {
     try {
       //Request body
       Map<String, dynamic> body = {
-        'amount': amount.toString(),
+        'amount': calculateAmount(amount).toString(),
         'currency': currency,
+        'payment_method_types[]': 'card'
       };
 
       //Make post request to Stripe
       var response = await http.post(
         Uri.parse('https://api.stripe.com/v1/payment_intents'),
         headers: {
-          'Authorization': 'Bearer sk_test_51ND5WZL4c8dEbwgLkVzsdkfc7foyMGsMShgUEDXTMni09t2ThclYbD03NJqe7AERJRO7cO3DWHTcf1qNDkNdpA91007dAdLXwf',
+          'Authorization': 'Bearer ${commonController.bankKeyModel!.stripeSecretKey}',
           'Content-Type': 'application/x-www-form-urlencoded'
         },
         body: body,
       );
       return json.decode(response.body);
     } catch (err) {
+      showToast("You can't transfer amount in cents");
       throw Exception(err.toString());
     }
   }
@@ -263,8 +277,8 @@ Map<String,dynamic>? paymentIntents;
               ),
             ));
 
-        await bankTransferController.setWallet(model.amount.toString());
-         await commonController.InvoicePostByBank( model.clientSecret,model.id,"Stripe",authController.userModel?.email,model.amount);
+        await bankTransferController.setWallet(_enterAmountTextEditingController.text.toString());
+         await commonController.InvoicePostByBank( model.clientSecret,model.id,"Stripe",authController.userModel?.email,_enterAmountTextEditingController.text);
          closeLoadingDialog();
          Get.back();
          Get.to(()=>TopUpHistoryScreen());

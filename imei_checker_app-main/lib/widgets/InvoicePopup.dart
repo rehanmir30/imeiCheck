@@ -1,8 +1,13 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:imei/controllers/AdminAccountsController.dart';
+import 'package:imei/controllers/common_controller.dart';
 import 'package:imei/model/InvoiceModel.dart';
+import 'package:imei/utils/helper.dart';
+import 'package:imei/widgets/custom_button.dart';
 
 import '../utils/colors.dart';
 import '../utils/images_path.dart';
@@ -15,68 +20,169 @@ class InvoicePopup extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SimpleDialog(
-      shape: RoundedRectangleBorder(
-        side: BorderSide(width: 2,style: BorderStyle.solid,color: AppColors.kPrimary),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      insetPadding: EdgeInsets.symmetric(horizontal: 10),
-      children: [Container(
-        padding: EdgeInsets.all(10),
-        // color: Colors.white,
-        height: 600,
+        shape: RoundedRectangleBorder(
+          side: BorderSide(
+              width: 2, style: BorderStyle.solid, color: AppColors.kPrimary),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        insetPadding: EdgeInsets.symmetric(horizontal: 10),
+        children: [Container(
+          padding: EdgeInsets.all(10),
+          // color: Colors.white,
+          height: 600,
           width: 600,
           child: Container(
-            height:  600,
+            height: 600,
 
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
+            child: Stack(
+              alignment: Alignment.topCenter,
               children: [
-                Row(
-                  mainAxisAlignment:MainAxisAlignment.spaceBetween,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    AppWidgets.image(ImagesPath.appIcon.toString(), height: 20,),
-                    InkWell(
-                      onTap: (){
-                        Get.back();
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        AppWidgets.image(
+                          ImagesPath.appIcon.toString(), height: 20,),
+                        InkWell(
+                          onTap: () {
+                            Get.back();
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Icon(Icons.close,
+                              color: AppColors.kPrimary,),
+                          ),
+                        )
+                      ],),
+                    _buildInvoiceDetails(),
+                    SizedBox(height: 20),
+                    _buildTable(),
+                    SizedBox(height: 20),
+                    Text('Gateway: ${invoiceModel?.paymentMethod}\n'),
+                    if(invoiceModel?.paymentMethod == "Direct Transfer" ||
+                        invoiceModel?.paymentMethod == "USDT")
+                      Text('Bank Details:', style: TextStyle(
+                          color: Colors.black, fontWeight: FontWeight.bold),),
+
+                    if(invoiceModel?.paymentMethod == "Direct Transfer")
+                      GetBuilder<AdminAcccountsController>(
+                          builder: (controller) {
+                            return ListView.builder(
+                                shrinkWrap: true,
+                                itemCount: controller.adminBankAccounts.length,
+                                itemBuilder: (context, index) {
+                                  return Column(
+                                    children: [
+                                      Row(children: [
+                                        Text("Bank: ", style: TextStyle(
+                                            color: Colors.black,
+                                            fontWeight: FontWeight.bold),),
+                                        Text(controller.adminBankAccounts[index]
+                                            .bank.toString()),
+                                      ],),
+                                      Row(children: [
+                                        Text("Account Holder: ",
+                                          style: TextStyle(color: Colors.black,
+                                              fontWeight: FontWeight.bold),),
+                                        Text(controller.adminBankAccounts[index]
+                                            .title.toString()),
+                                      ],),
+                                      Row(children: [
+                                        Text("Bank: ", style: TextStyle(
+                                            color: Colors.black,
+                                            fontWeight: FontWeight.bold),),
+                                        Text(controller.adminBankAccounts[index]
+                                            .acNum.toString()),
+                                      ],),
+
+
+                                    ],).marginSymmetric(vertical: 15);
+                                });
+                          }),
+
+                    if(invoiceModel?.paymentMethod == "USDT")
+                      const Text(
+                          "test_EKm3aFddHE2wwdgnpiRzJ6W_On-99t5UfqdnggfH-tLst4atGq")
+                          .marginOnly(top: 10),
+
+                  ],
+                ),
+
+                if(invoiceModel?.paymentMethod == "USDT" ||
+                    invoiceModel?.paymentMethod == "Direct Transfer")
+                  Positioned(
+                    bottom: 10,
+                    child: CustomButton(
+                      buttonWidth: MediaQuery
+                          .of(context)
+                          .size
+                          .width * 0.6,
+                      buttonHeight: 40,
+                      buttonText: "Upload Proof",
+                      buttonTextStyle: TextStyle(fontSize: 18),
+                      buttonOnPressed: () {
+                        _showImagePickerModal(context);
                       },
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Icon(Icons.close,color: AppColors.kPrimary,),
-                      ),
-                    )],),
-                _buildInvoiceDetails(),
-                SizedBox(height: 20),
-                _buildTable(),
-                SizedBox(height: 20),
-                Text('Gateway: ${invoiceModel?.paymentMethod}\n'),
-                if(invoiceModel?.paymentMethod=="Direct Transfer"||invoiceModel?.paymentMethod=="USDT")
-                  Text('Bank Details:',style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold),),
-
-                if(invoiceModel?.paymentMethod=="Direct Transfer")
-                GetBuilder<AdminAcccountsController>(builder: (controller){
-                  return ListView.builder(
-                    shrinkWrap: true,
-                      itemCount: controller.adminBankAccounts.length,
-                      itemBuilder: (context,index){
-                        return Column(
-                          children: [
-                            Row(children: [Text("Bank: ",style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold),), Text(controller.adminBankAccounts[index].bank.toString()),],),
-                            Row(children: [Text("Account Holder: ",style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold),), Text(controller.adminBankAccounts[index].title.toString()),],),
-                            Row(children: [Text("Bank: ",style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold),), Text(controller.adminBankAccounts[index].acNum.toString()),],),
-
-
-                          ],).marginSymmetric(vertical: 15);
-
-                      });
-                }),
-
-                if(invoiceModel?.paymentMethod=="USDT")
-                  const Text("test_EKm3aFddHE2wwdgnpiRzJ6W_On-99t5UfqdnggfH-tLst4atGq").marginOnly(top: 10),
+                    ),
+                  ),
               ],
             ),
           ),
-        ),]
+        ),
+        ]
+    );
+  }
+
+  void _showImagePickerModal(context) {
+    showModalBottomSheet(
+      shape: RoundedRectangleBorder(borderRadius:  BorderRadius.only(topRight: Radius.circular(10),topLeft: Radius.circular(10)) ),
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          decoration: BoxDecoration(
+            borderRadius:  BorderRadius.only(topRight: Radius.circular(10),topLeft: Radius.circular(10)),
+          ),
+          height: 180,
+          child: Column(
+            children: <Widget>[
+              ListTile(
+                leading: Icon(Icons.photo_library),
+                title: Text('Choose from Gallery'),
+                onTap: () async {
+                  CommonController commonController = Get.find<CommonController>();
+                   File? file = await commonController.getImageFromGallery();
+                   if(file==null){
+                     showToast("Please pick image from gallery");
+                   }else{
+                    await commonController.postData(invoiceModel!.invoiceNo.toString(), file);
+                    Get.back();
+
+                   }
+
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.camera_alt),
+                title: Text('Capture from Camera'),
+                onTap: () async {
+                  CommonController commonController = Get.find<CommonController>();
+                  File? file = await commonController.captureImageFromCamera();
+                  if(file==null){
+                    showToast("Please pick image using camera");
+                  }else{
+                    await commonController.postData(invoiceModel!.invoiceNo.toString(), file);
+                    Get.back();
+
+                  }
+                },
+              ),
+            ],
+          ),
+        );
+      },
     );
 
   }

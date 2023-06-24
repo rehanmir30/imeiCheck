@@ -8,6 +8,7 @@ class OrderListController extends GetxController{
   List<OrderModel>? get userAllOrders=>_userAllOrders;
   setListData(List<OrderModel> allOrders)async{
     _userAllOrders=allOrders;
+    print("COUNT: "+_userAllOrders!.length.toString());
     update();
   }
 }

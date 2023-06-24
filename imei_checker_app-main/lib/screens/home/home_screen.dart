@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_stripe/flutter_stripe.dart' as strip;
 import 'package:get/get.dart';
 import 'package:html/parser.dart';
 import 'package:imei/controllers/OrderListController.dart';
@@ -11,7 +12,7 @@ import 'package:imei/utils/colors.dart';
 import 'package:imei/utils/images_path.dart';
 
 import 'package:imei/widgets/common_scaffold.dart';
-
+import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import '../../controllers/common_controller.dart';
 import '../../controllers/services_controller.dart';
 import '../../utils/helper.dart';
@@ -41,6 +42,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    strip.Stripe.publishableKey = "${controller.bankKeyModel!.stripePublishableKey}";
     setWalletValue();
   }
   setWalletValue(){
@@ -52,76 +54,88 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return CommonScaffold(
       appBarTitle: 'DASH BOARD',
-      body: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        child: Container(
-          margin: AppWidgets.edgeInsetsSymmetric(horizontal: 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              GetBuilder<OrderListController>(
-                builder: (controller) {
-                  return (controller.userAllOrders == null)
-                      ? Container()
-                      : Column(
-                          children: [
-                            AppWidgets.spacingHeight(10),
-                            _topCards(
-                              imagesPath: ImagesPath.arrowUpperOrange,
-                              titleText: 'IMEI Check',
-                              detailsText:
-                                  controller.userAllOrders!.length.toString(),
-                            ),
-                            _topCards(
-                              imagesPath: ImagesPath.cardOrangePNG,
-                              titleText: 'Credits',
-                              detailsText:
-                                  '\$ ${authController.userModel!.wallet.toStringAsFixed(2)}',
-                            ),
-                            _topCards(
-                              imagesPath: ImagesPath.eyeOrangePNG,
-                              titleText: 'Fraud Eye Status',
-                              detailsText: 'Clear',
-                            ),
-                            AppWidgets.spacingHeight(10),
-                            Row(
-                              children: [
-                                AppWidgets.text(
-                                  'Result History',
-                                  style: AppTextStyles.black18W600TextStyle,
-                                ),
-                              ],
-                            ),
-                            AppWidgets.spacingHeight(10),
-                          ],
-                        );
-                },
-              ),
-              GetBuilder<OrderListController>(builder: (controller) {
-                return (controller.userAllOrders == null)
-                    ? Container(child: Text("No Text"),)
-                    : ListView.builder(
-                        itemCount: controller.userAllOrders!.length > 10
-                            ? 10
-                            : controller.userAllOrders!.length,
-                        shrinkWrap: true,
-                        primary: false,
-                        // reverse: true,
-                        itemBuilder: (BuildContext context, int index) {
-                          return OrderTileWidget(
-                            status: orderListController
-                                .userAllOrders![index].status,
-                            titleId:
-                                orderListController.userAllOrders![index].imei,
-                            result: orderListController.userAllOrders![index].result,
+      body: LiquidPullToRefresh(
+        color: Colors.transparent,
+        backgroundColor: Colors.amberAccent,
+        animSpeedFactor: 2.0,
+        showChildOpacityTransition: false,
+        onRefresh: () => _handleRefreshState(),
+        child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          child: Container(
+            margin: AppWidgets.edgeInsetsSymmetric(horizontal: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                GetBuilder<OrderListController>(
+                  builder: (controller) {
+                    return (controller.userAllOrders == null)
+                        ? Container()
+                        : Column(
+                            children: [
+                              AppWidgets.spacingHeight(10),
+                              _topCards(
+                                imagesPath: ImagesPath.arrowUpperOrange,
+                                titleText: 'IMEI Check',
+                                detailsText:
+                                    controller.userAllOrders!.length.toString(),
+                              ),
+                              _topCards(
+                                imagesPath: ImagesPath.cardOrangePNG,
+                                titleText: 'Credits',
+                                detailsText:
+                                    '\$ ${authController.userModel!.wallet.toStringAsFixed(2)}',
+                              ),
+                              _topCards(
+                                imagesPath: ImagesPath.eyeOrangePNG,
+                                titleText: 'Fraud Eye Status',
+                                detailsText: 'Clear',
+                              ),
+                              AppWidgets.spacingHeight(10),
+                              Row(
+                                children: [
+                                  AppWidgets.text(
+                                    'Result History',
+                                    style: AppTextStyles.black18W600TextStyle,
+                                  ),
+                                ],
+                              ),
+                              AppWidgets.spacingHeight(10),
+                            ],
                           );
-                        });
-              }),
-            ],
+                  },
+                ),
+                GetBuilder<OrderListController>(builder: (controller) {
+                  return (controller.userAllOrders == null)
+                      ? Container(child: Text("No Text"),)
+                      : ListView.builder(
+                          itemCount: controller.userAllOrders!.length > 10
+                              ? 10
+                              : controller.userAllOrders!.length,
+                          shrinkWrap: true,
+                          primary: false,
+                          // reverse: true,
+                          itemBuilder: (BuildContext context, int index) {
+                            return OrderTileWidget(
+                              status: orderListController
+                                  .userAllOrders![index].status,
+                              titleId:
+                                  orderListController.userAllOrders![index].imei,
+                              result: orderListController.userAllOrders![index].result,
+                            );
+                          });
+                }),
+              ],
+            ),
           ),
         ),
       ),
     );
+  }
+
+  Future<void>_handleRefreshState()async{
+    controller.getAllOrders(authController.userModel!);
+
   }
 
   Center _topCards({

@@ -701,6 +701,7 @@ class CommonController extends GetxController {
       var responseJson;
       try {
         responseJson = jsonDecode(response.body);
+        print(response.body.toString());
         if (response.statusCode == 200) {
           if (responseJson["status"] == "Successful") {
             var result = responseJson['response'];
@@ -716,17 +717,23 @@ class CommonController extends GetxController {
             await postOrderAPICall(error, imei, selectedService);
             closeLoadingDialog();
             Get.to(() => ResultDetailsScreen(error));
+          }else{
+            var result = responseJson['result'];
+            await postOrderAPICall(result, imei, selectedService);
+            closeLoadingDialog();
+            Get.to(() => ResultDetailsScreen(result));
           }
         } else {
           print("Hellooo: Failleedd");
         }
-      } catch (e) {
+      }
+      catch (e) {
         // var json = jsonEncode(response.body);
         var response;
         var urls = url.toString();
         // Check if format=html exists
         if (url.queryParameters.containsKey('format') &&
-            url.queryParameters['format'] == 'html') {
+            (url.queryParameters['format'] == 'html'||url.queryParameters['format'] == 'json')) {
           // Replace format=html with format=json
           url = url.replace(queryParameters: {'format': 'json'});
 
@@ -826,9 +833,15 @@ class CommonController extends GetxController {
             // closeLoadingDialog();
           } else if (responseJson["status"] == "Rejected") {
             var error = responseJson['error'];
-            showToast(error);
+            // showToast(error);
+            await setBulkData(error);
             print(error.toString());
             // closeLoadingDialog();
+          }else{
+            var result = responseJson['result'];
+            await postOrderAPICall(result, imei, selectedService);
+            closeLoadingDialog();
+            await setBulkData(result);
           }
         } else {
           print("Hellooo: Failleedd");
@@ -839,7 +852,7 @@ class CommonController extends GetxController {
         var urls = url.toString();
         // Check if format=html exists
         if (url.queryParameters.containsKey('format') &&
-            url.queryParameters['format'] == 'html') {
+            url.queryParameters['format'] == 'html' ||url.queryParameters['format'] == 'json') {
           // Replace format=html with format=json
           url = url.replace(queryParameters: {'format': 'json'});
 
@@ -927,44 +940,54 @@ class CommonController extends GetxController {
         "Accept": "application/json",
         'Content-Type': 'application/json',
       };
-      print("BEFORE: " + result.toString());
-      if (result.contains("</font>")) {
-        // Parse the HTML string
-        html.DocumentFragment document = parseFragment(result);
+      result = jsonEncode(result);
+      // print("BEFORE: " + result.toString());
 
-        // Get all font elements
-        List<html.Element> fontElements = document.querySelectorAll('font');
+      // result = json.encode(result);
 
-        // Remove the font elements from the document
-        for (var fontElement in fontElements) {
-          fontElement.remove();
-        }
+      List<String> brokenStrings = [];
+      int length = result.length;
+      int partSize = (length / 2).ceil();
 
-        // Get the updated string without font tags
-        result = document.text!;
+      //
+      // if (result.contains("</font>")) {
+      //   // Parse the HTML string
+      //   html.DocumentFragment document = parseFragment(result);
+      //
+      //   // Get all font elements
+      //   List<html.Element> fontElements = document.querySelectorAll('font');
+      //   // Remove the font elements from the document
+      //   for (var fontElement in fontElements) {
+      //     fontElement.remove();
+      //   }
+      //
+      //   // Get the updated string without font tags
+      //   result = document.text!;
+      //
+      //   print("\n\nAFTER: " + result.toString());
+      // }
+      // if (result.contains("</span>")) {
+      //   // Parse the HTML string
+      //   html.DocumentFragment document = parseFragment(result);
+      //
+      //   // Get all font elements
+      //   List<html.Element> spanElement = document.querySelectorAll('span');
+      //
+      //   // Remove the font elements from the document
+      //   for (var spanElement in spanElement) {
+      //     spanElement.remove();
+      //   }
+      //
+      //   // Get the updated string without font tags
+      //   result = document.text!;
+      //
+      //   print("\n\nAFTER: " + result.toString());
+      // }
 
-        print("\n\nAFTER: " + result.toString());
-      }
-      if (result.contains("</span>")) {
-        // Parse the HTML string
-        html.DocumentFragment document = parseFragment(result);
-
-        // Get all font elements
-        List<html.Element> spanElement = document.querySelectorAll('span');
-
-        // Remove the font elements from the document
-        for (var spanElement in spanElement) {
-          spanElement.remove();
-        }
-
-        // Get the updated string without font tags
-        result = document.text!;
-
-        print("\n\nAFTER: " + result.toString());
-      }
+      // result = json.encode(result);
+      print("MY RESULT: "+result.toString());
       var body = '{"status": "Success","service": "${selectedService
-          .id}","imei":"${imei.trim()}","result":"${result
-          .trim()}","credits":"${selectedService.cost
+          .id}","imei":"${imei.trim()}","result":${'${result}'},"credits":"${selectedService.cost
           .trim()}","username":"${authController.userModel!.userName.trim()}"}';
 
       var url = Uri.parse(
@@ -975,7 +998,7 @@ class CommonController extends GetxController {
       final response = await http.post(url, headers: header,
         body: body,
       );
-      showToast(body.toString());
+      // showToast(body.toString());
 
       var responseJson = jsonDecode(response.body);
 
@@ -983,7 +1006,7 @@ class CommonController extends GetxController {
 
       if (responseJson["success"] == 1) {
         print("HI:: " + responseJson.toString());
-        showToast(responseJson['message'].toString());
+        // showToast(responseJson['message'].toString());
         var currentAmount = authController.userModel!.wallet;
         var latestAmount = double.parse(currentAmount.toString()) -
             double.parse(selectedService.cost.toString());
@@ -993,7 +1016,7 @@ class CommonController extends GetxController {
       }
       else if (responseJson["success"] == 0) {
         print("HI:: " + responseJson.toString());
-        showToast(responseJson['message'].toString());
+        // showToast(responseJson['message'].toString());
         var currentAmount = authController.userModel!.wallet;
         var latestAmount = double.parse(currentAmount.toString()) -
             double.parse(selectedService.cost.toString());

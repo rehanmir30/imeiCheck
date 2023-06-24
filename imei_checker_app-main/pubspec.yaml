@@ -88,6 +88,7 @@ dependencies:
   flutter_widget_from_html:
   # firebase packages
   firebase_core: ^2.4.0
+  #To Authenticate User
   firebase_auth: ^4.2.5
   # Design Package
   flutter_screenutil: ^5.7.0
@@ -95,6 +96,8 @@ dependencies:
   shared_preferences: ^2.1.0
   #To Send Mail
   mailer: ^6.0.1
+  #To remove move Unnecessary spaces from html
+  html_unescape: ^2.0.0
 
 dev_dependencies:
 

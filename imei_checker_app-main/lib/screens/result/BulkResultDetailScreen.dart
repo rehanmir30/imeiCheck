@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:html_unescape/html_unescape.dart';
 import 'package:imei/utils/app_text_styles.dart';
 import 'package:imei/utils/colors.dart';
 import 'package:imei/utils/constants.dart';
@@ -97,9 +98,9 @@ class _BulkResultDetailScreenState extends State<BulkResultDetailScreen> {
                     shrinkWrap: true,
                       primary: false,
                       itemBuilder: (context, index) {
-                    return HtmlWidget(widget.result[index]??"No Simialar data Found");
+                    return HtmlWidget('</p>${HtmlUnescape().convert(widget.result[index]??'No Similar data Found')}</p>');
                   }, separatorBuilder: (context, index) {
-                    return Divider(height: 2,color: Colors.black.withOpacity(0.4),);
+                    return Divider(height: 2,color: Colors.black.withOpacity(0.4),).marginSymmetric(vertical: 10);
 
                   }, itemCount: widget.result.length),
 

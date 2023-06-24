@@ -1,4 +1,5 @@
 
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -13,8 +14,8 @@ import 'package:imei/widgets/common_scaffold.dart';
 import '../../controllers/common_controller.dart';
 
 import '../../widgets/app_widgets.dart';
-import '../../widgets/result_history.dart';
-import '../../widgets/text_fields.dart';
+import 'package:html_unescape/html_unescape.dart';
+
 
 class ResultDetailsScreen extends StatefulWidget {
   var result;
@@ -32,6 +33,9 @@ class _ResultDetailsScreenState extends State<ResultDetailsScreen> {
     // TODO: implement initState
     super.initState();
     CommonController controller = Get.find<CommonController>();
+    // widget.result = jsonDecode(widget.result).toString();
+    get();
+    print("Received: "+widget.result.toString());
 
     imei.add(widget.result);
     if(controller.bulkEmailCheckBoxValue.value==true){
@@ -39,9 +43,20 @@ class _ResultDetailsScreenState extends State<ResultDetailsScreen> {
     }
   }
 
+  get()async{
+   await Future.delayed(Duration(milliseconds: 2000),(){
+
+    });
+  }
+
+
+
+
+
   // final CommonController controller = Get.find<CommonController>();
   @override
   Widget build(BuildContext context) {
+
     return CommonScaffold(
       appBarTitle: 'RESULT',
       body: Container(
@@ -77,13 +92,6 @@ class _ResultDetailsScreenState extends State<ResultDetailsScreen> {
                     ),
                   ],
                 ),
-                // Center(
-                //   child: AppWidgets.cachedNetworkImage(
-                //     ImagesPath.iPhoneNetWorkImage,
-                //     height: 110,
-                //     width: 300,
-                //   ),
-                // ),
                 (widget.result==null||widget.result=="")
                     ?Center(child: Text("No Data Found"),)
                     :Container(
@@ -94,16 +102,19 @@ class _ResultDetailsScreenState extends State<ResultDetailsScreen> {
                     borderRadius: BorderRadius.circular(20.0).r,
 
                   ),
-                  child: HtmlWidget('<p>${widget.result}</p>',renderMode: RenderMode.column,),
+                  child: HtmlWidget('</p>${HtmlUnescape().convert(widget.result) }</p>',renderMode: RenderMode.column,),
 
 
                 ),
 
-              ],
+
+            ]
+        ),
+
             ),
           ),
         ),
-      ),
+
 
 
     );

@@ -41,7 +41,7 @@ class _ViewProfileScreenState extends State<ViewProfileScreen> {
 
   @override
   void initState() {
-    _nameTextEditingController=TextEditingController(text:authController.userModel!.name);
+    _nameTextEditingController=TextEditingController(text:authController.userModel!.userName);
     _emailTextEditingController=TextEditingController(text: authController.userModel!.email);
     _phoneTextEditingController=TextEditingController(text: authController.userModel!.phone);
   }
@@ -103,11 +103,62 @@ class _ViewProfileScreenState extends State<ViewProfileScreen> {
 
                     ),
                     AppWidgets.spacingHeight(10),
-
-
-
                     AppWidgets.spacingHeight(10),
 
+                    InkWell(
+                      onTap: (){
+
+                        showDialog(context: context, builder: (context) {
+                          return AlertDialog(
+
+                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                            title: Text('Delete Account'),
+                            content: Container(
+                              height: 100,
+                              child: Column(
+                                children: [
+                                  Text('Are you sure you want to delete your account permanently'),
+                                  Expanded(child: Container()),
+
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+
+                                      InkWell(
+                                          onTap:(){
+                                            Navigator.of(context).pop();
+                                          },
+                                          child: Text('Cancel')),
+                                      SizedBox(width: 20,),
+                                      ElevatedButton(
+                                        style: ElevatedButton.styleFrom(backgroundColor: AppColors.kRedColor),
+                                          onPressed: () async{
+                                          CommonController commController = Get.find<CommonController>();
+
+                                          await commController.deleteAccount(_nameTextEditingController.text);
+
+
+                                      }, child: Text('Delete')),
+
+                                  ],)
+                                ],
+                              ),
+                            ),
+                          );
+                        },);
+
+                      },
+                      child: Container(
+                        alignment: Alignment.center,
+                        height: 60,
+                        width: MediaQuery.of(context).size.width,
+                        decoration: BoxDecoration(
+                            color: Colors.red,
+                            borderRadius: BorderRadius.circular(30)
+                        ),
+                        child: Text('Delete Account',style: TextStyle(color: AppColors.kWhiteColor,fontSize: 18,fontWeight: FontWeight.bold),),
+                      ),
+                    ),
 
 
 
@@ -116,6 +167,8 @@ class _ViewProfileScreenState extends State<ViewProfileScreen> {
                 ),
               ),
             ),
+
+
 
 
 

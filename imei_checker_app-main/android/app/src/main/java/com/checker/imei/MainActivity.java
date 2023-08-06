@@ -1,4 +1,4 @@
-package com.checker.imei;
+package com.imei.app;
 
 import io.flutter.embedding.android.FlutterActivity;
 import io.flutter.embedding.android.FlutterFragmentActivity;

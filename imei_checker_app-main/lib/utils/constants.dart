@@ -33,5 +33,6 @@ class AppConstant {
   static String getAllUserNamesUrl = "${apiUrl}userg.php";
   static String getBankKeysUrl = "${apiUrl}authg.php";
   static String invoiceProfApi = "${apiUrl}invoiceproof.php";
+  static String deleteUserAccountApi = "${apiUrl}deleteacc.php";
 
 }

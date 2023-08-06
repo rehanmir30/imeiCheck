@@ -1514,5 +1514,66 @@ class CommonController extends GetxController {
   }
 
 
+  Future deleteAccount(userName) async {
+    AuthController authController = Get.find<AuthController>();
+
+    Map<String, String> header = {
+      "Accept": "application/json",
+      'Content-Type': 'application/json',
+    };
+    var body = '{"username": "${userName.trim()}"}';
+
+    try {
+      showLoadingDialog();
+      var url = Uri.parse(AppConstant.deleteUserAccountApi);
+      Logger.debug(tag, 'Verify User API URL - ${url.toString()}');
+      Logger.debug(tag, 'Verify User Request Body - ${body.toString()}');
+      final response = await http.post(
+        url,
+        headers: header,
+        body: body,
+      );
+      var responseJson = jsonDecode(response.body);
+      if (response.statusCode == 201) {
+        if (responseJson['success'] == 1) {
+          showToast("${responseJson['message']}");
+          update();
+          Get.off(()=>WelcomeScreen());
+          closeLoadingDialog();
+        }
+      }else{
+        showToast("${responseJson['message']}");
+        update();
+        closeLoadingDialog();
+      }
+
+    } on SocketException catch (e) {
+      closeLoadingDialog();
+      Logger.error(tag, 'Socket Exception- ${e.toString()}');
+      showAlert(
+          dialogType: DialogType.success,
+          title: "errorOccurred",
+          description: "Socket Exception");
+      rethrow;
+    } on TimeoutException catch (e) {
+      closeLoadingDialog();
+      Logger.error(tag, 'Timeout Exception- ${e.toString()}');
+      showAlert(
+          dialogType: DialogType.error,
+          title: "errorOccurred",
+          description: "Timeout Exception");
+      rethrow;
+    } on Exception catch (e) {
+      closeLoadingDialog();
+      Logger.error(tag, 'Exception- ${e.toString()}');
+      showAlert(
+          dialogType: DialogType.error,
+          title: "errorOccurred",
+          description: " Exception");
+      rethrow;
+    }
+  }
+
+
 
 }

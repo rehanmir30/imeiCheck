@@ -36,13 +36,25 @@ AuthController authController=Get.find<AuthController>();
           child: Column(
             children: [
               AppWidgets.spacingHeight(30),
-              CircleAvatar(
-                radius: 60.r,
-                child: ClipOval(
-                  child: authController.userModel!.img==null||authController.userModel!.img==""?Image.network(
-                    ImagesPath.profileNetWorkImage,
-                  ):Image.network(
-                    authController.userModel!.img,
+              Container(
+               decoration: BoxDecoration(
+                 shape: BoxShape.circle,
+                 color: AppColors.kPrimary
+               ),
+                child: Padding(
+                  padding: EdgeInsets.all(2),
+                  child: CircleAvatar(
+                    backgroundColor: Colors.white,
+                    radius: 60.r,
+                    child: ClipOval(
+                      child: authController.userModel!.img==null||authController.userModel!.img==""?Image.asset(
+                        "assets/icons/appIcon.png",
+                        height: 80,
+                        width: 80,
+                      ):Image.network(
+                        authController.userModel!.img,
+                      ),
+                    ),
                   ),
                 ),
               ),

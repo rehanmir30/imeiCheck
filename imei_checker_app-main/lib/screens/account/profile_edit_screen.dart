@@ -63,13 +63,7 @@ class ProfileEditScreen extends StatelessWidget {
                   filledColor: AppColors.kWhiteColor,
                   hintText: "Enter new email",
                 ),
-                AppWidgets.spacingHeight(10),
-                CustomTextFieldWithRectBorder(
-                  filled: true,
-                  controller: phoneController,
-                  filledColor: AppColors.kWhiteColor,
-                  hintText: "Enter new phone number",
-                ),
+
                 AppWidgets.spacingHeight(10),
                 CustomTextFieldWithRectBorder(
                   filled: true,

@@ -54,27 +54,20 @@ class SignUpScreen extends StatelessWidget {
                     AppWidgets.spacingHeight(10),
                     CustomTextFieldWithRectBorder(
                       filled: true,
-                      controller: _passwordTextEditingController,
-                      obscureText: true,
-                      filledColor: AppColors.kWhiteColor,
-                      hintText: "Enter your Password",
-                    ),
-                    AppWidgets.spacingHeight(10),
-                    CustomTextFieldWithRectBorder(
-                      filled: true,
-                      controller: _phoneNumberTextEditingController,
-                      textInputType: TextInputType.phone,
-                      filledColor: AppColors.kWhiteColor,
-                      hintText: "Enter your Phone Number",
-                    ),
-                    AppWidgets.spacingHeight(10),
-                    CustomTextFieldWithRectBorder(
-                      filled: true,
                       controller: _emailTextEditingController,
                       filledColor: AppColors.kWhiteColor,
                       textInputType: TextInputType.emailAddress,
                       hintText: "Enter your Email",
                     ),
+                    AppWidgets.spacingHeight(10),
+                    CustomTextFieldWithRectBorder(
+                      filled: true,
+                      controller: _passwordTextEditingController,
+                      obscureText: true,
+                      filledColor: AppColors.kWhiteColor,
+                      hintText: "Enter your Password",
+                    ),
+
                     Row(
                       children: [
                         Obx(() => Checkbox(
@@ -116,11 +109,7 @@ class SignUpScreen extends StatelessWidget {
                           showToast("enter password mini 6 charter");
                           return;
                         }
-                        if (_phoneNumberTextEditingController.text.length <
-                            11) {
-                          showToast("enter phone mini 11 charter");
-                          return;
-                        }
+
                         if (!GetUtils.isEmail(
                             _emailTextEditingController.text)) {
                           showToast("enter valid email");
@@ -136,8 +125,7 @@ class SignUpScreen extends StatelessWidget {
                                 _userNameTextEditingController.text.trim(),
                             password:
                                 _passwordTextEditingController.text.trim(),
-                            phone:
-                                _phoneNumberTextEditingController.text.trim(),
+                            phone:" ",
                           );
                         }
                       },

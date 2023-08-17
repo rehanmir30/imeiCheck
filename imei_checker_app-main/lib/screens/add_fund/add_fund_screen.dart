@@ -31,13 +31,14 @@ class AddFundScreen extends StatelessWidget {
         margin: AppWidgets.edgeInsetsSymmetric(horizontal: 20, vertical: 25),
         child: Column(
           children: [
+            AppWidgets.spacingHeight(50),
 
-            _topUpCard(imagePath: ImagesPath.bankIconPNG,paymentMethod:"Direct Transfer"),
+            // _topUpCard(imagePath: ImagesPath.bankIconPNG,paymentMethod:"Direct Transfer"),
             _topUpCard(imagePath: ImagesPath.visaIconPNG ,paymentMethod:"Stripe"),
             _topUpCard(imagePath: ImagesPath.paypalIconPNG ,paymentMethod:"Paypal"),
-            _topUpCard(imagePath: ImagesPath.usdtIconPNG ,paymentMethod:"USDT"),
+            // _topUpCard(imagePath: ImagesPath.usdtIconPNG ,paymentMethod:"USDT"),
 
-            AppWidgets.spacingHeight(10),
+            AppWidgets.spacingHeight(30),
             CustomButton(
               buttonHeight: 50.h,
               buttonWidth: 300.w,

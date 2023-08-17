@@ -57,7 +57,7 @@ class AppBarRoundedCorner extends StatelessWidget implements PreferredSizeWidget
       backgroundColor: isBackGroundColor == false
           ? AppColors.kPrimary
           : AppColors.kTransparentColor,
-      automaticallyImplyLeading: false,
+      automaticallyImplyLeading: true,
       shape: RoundedRectangleBorder(
         borderRadius: const BorderRadius.vertical(
           bottom: Radius.circular(30),

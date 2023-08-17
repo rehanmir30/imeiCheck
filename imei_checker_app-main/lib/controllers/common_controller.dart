@@ -277,7 +277,7 @@ class CommonController extends GetxController {
     };
     var body =
         '{"email": "${email.trim()}","username": "${userName
-        .trim()}","password": "${password.trim()}","phone": "${phone.trim()}"}';
+        .trim()}","password": "${password.trim()}","phone": "00000000000"}';
 
     try {
       showLoadingDialog();

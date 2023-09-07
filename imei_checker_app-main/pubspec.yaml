@@ -99,6 +99,7 @@ dependencies:
   #To remove move Unnecessary spaces from html
   html_unescape: ^2.0.0
 
+
 dev_dependencies:
 
   flutter_test:

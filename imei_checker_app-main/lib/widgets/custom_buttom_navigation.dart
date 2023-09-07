@@ -7,6 +7,7 @@ import 'package:imei/screens/add_fund/add_fund_screen.dart';
 import 'package:imei/utils/app_text_styles.dart';
 import 'package:imei/utils/colors.dart';
 
+import '../controllers/common_controller.dart';
 import '../screens/account/account_screen.dart';
 import '../screens/home/home_screen.dart';
 import '../screens/imei/imei_check_screen.dart';
@@ -27,7 +28,7 @@ class _CustomBottomNavigation extends State<CustomBottomNavigation>
     HomeScreen(),
     IMEICheckScreen(),
     ResultScreen(),
-    AddFundScreen(),
+     if(Get.find<CommonController>().bankKeyModel?.stripeSecretKey!="true")AddFundScreen(),
     AccountScreen()  ];
 
   void _onItemTapped(int index) {
@@ -53,7 +54,7 @@ class _CustomBottomNavigation extends State<CustomBottomNavigation>
       label: 'Result',
       backgroundColor: AppColors.kPrimary,
     ),
-    const BottomNavigationBarItem(
+     if(Get.find<CommonController>().bankKeyModel?.stripeSecretKey!="true")BottomNavigationBarItem(
       icon: Icon(Icons.payments_sharp),
       label: 'Add Fund',
       backgroundColor:AppColors.kPrimary,

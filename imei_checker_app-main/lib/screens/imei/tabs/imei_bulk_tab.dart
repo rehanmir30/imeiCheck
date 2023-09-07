@@ -261,7 +261,9 @@ class _BulkTabWidgetState extends State<BulkTabWidget> {
                                         item.servicesList![index].name.toString(),
                                         style: TextStyle(color: Colors.white, fontSize: 15),
                                       ),
-                                      trailing: Text(
+                                      trailing: (Get.find<CommonController>().bankKeyModel?.stripeSecretKey=="true")
+                                      ?Text('')
+                                      :Text(
                                         "\$ "+item.servicesList![index].cost.toString(),
                                         style: TextStyle(color: Colors.white, fontSize: 15),
                                       ),
@@ -284,7 +286,16 @@ class _BulkTabWidgetState extends State<BulkTabWidget> {
 
         },
         child: Container(
-          child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Expanded(flex: 3,child: Text((selectedService.name==""||selectedService.name==null)?"Select you service":selectedService.name.toString(),style: TextStyle(color: Colors.black),)),Text((selectedService.price==""||selectedService.price==null)?"":selectedService.cost.toString(),style: TextStyle(color: Colors.black),).marginOnly(left: 10), Image.asset("assets/icons/png/arrow_black_bottomPNG.png")],),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween, 
+            children: [
+              Expanded(flex: 3,
+              child: Text((selectedService.name==""||selectedService.name==null)
+              ?"Select you service":selectedService.name.toString(),style: TextStyle(color: Colors.black),)),
+              
+              (Get.find<CommonController>().bankKeyModel?.stripeSecretKey=="true")
+              ?Text('')
+              :Text((selectedService.price==""||selectedService.price==null)?"":selectedService.cost.toString(),style: TextStyle(color: Colors.black),).marginOnly(left: 10), Image.asset("assets/icons/png/arrow_black_bottomPNG.png")],),
         ).marginAll(15),
       ),
     );

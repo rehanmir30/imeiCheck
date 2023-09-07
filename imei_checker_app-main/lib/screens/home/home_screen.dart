@@ -80,7 +80,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                 detailsText:
                                     controller.userAllOrders!.length.toString(),
                               ),
-                              _topCards(
+                              (Get.find<CommonController>().bankKeyModel?.stripeSecretKey=="true")
+                              ?Container()
+                              :_topCards(
                                 imagesPath: ImagesPath.cardOrangePNG,
                                 titleText: 'Credits',
                                 detailsText:

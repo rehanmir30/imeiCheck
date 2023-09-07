@@ -306,7 +306,10 @@ ServicesController servicesController=Get.find<ServicesController>();
                                         item.servicesList![index].name.toString(),
                                         style: TextStyle(color: Colors.white, fontSize: 15),
                                       ),
-                                      trailing: Text(
+                                      
+                                      trailing: (Get.find<CommonController>().bankKeyModel?.stripeSecretKey=="true")
+                                      ?Text('')
+                                      :Text(
                                         "\$ "+item.servicesList![index].cost.toString(),
                                         style: TextStyle(color: Colors.white, fontSize: 15),
                                       ),
@@ -329,7 +332,17 @@ ServicesController servicesController=Get.find<ServicesController>();
 
         },
         child: Container(
-          child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Expanded(flex: 3,child: Text((selectedService.name==""||selectedService.name==null)?"Select you service":selectedService.name.toString(),style: TextStyle(color: Colors.white),)),Text((selectedService.price==""||selectedService.price==null)?"":selectedService.cost.toString(),style: TextStyle(color: Colors.white),).marginOnly(left: 10), Image.asset("assets/icons/png/arrow_black_bottomPNG.png")],),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween, 
+            children: [
+              Expanded(
+                flex: 3,
+                child: Text((selectedService.name==""||selectedService.name==null)
+                ?"Select you service":selectedService.name.toString(),style: TextStyle(color: Colors.white),)),
+
+                (Get.find<CommonController>().bankKeyModel?.stripeSecretKey=="true")
+                ?Text('')
+                :Text((selectedService.price==""||selectedService.price==null)?"":selectedService.cost.toString(),style: TextStyle(color: Colors.white),).marginOnly(left: 10), Image.asset("assets/icons/png/arrow_black_bottomPNG.png")],),
         ).marginAll(15),
       ),
     );

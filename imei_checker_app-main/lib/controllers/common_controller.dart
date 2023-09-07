@@ -31,6 +31,7 @@ import 'package:imei/screens/auth/login_screen.dart';
 import 'package:imei/screens/welcome_screen.dart';
 import 'package:imei/utils/constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../model/InvoicePost.dart';
 import '../model/signup_model.dart';
 import '../utils/helper.dart';
@@ -159,26 +160,26 @@ class CommonController extends GetxController {
     } on SocketException catch (e) {
       closeLoadingDialog();
       Logger.error(tag, 'Socket Exception- ${e.toString()}');
-      showAlert(
-          dialogType: DialogType.success,
-          title: "errorOccurred",
-          description: "Socket Exception");
+      // showAlert(
+      //     dialogType: DialogType.success,
+      //     title: "errorOccurred",
+      //     description: "Socket Exception");
       rethrow;
     } on TimeoutException catch (e) {
       closeLoadingDialog();
       Logger.error(tag, 'Timeout Exception- ${e.toString()}');
-      showAlert(
-          dialogType: DialogType.error,
-          title: "errorOccurred",
-          description: "Timeout Exception");
+      // showAlert(
+      //     dialogType: DialogType.error,
+      //     title: "errorOccurred",
+      //     description: "Timeout Exception");
       rethrow;
     } on Exception catch (e) {
       closeLoadingDialog();
       Logger.error(tag, 'Exception- ${e.toString()}');
-      showAlert(
-          dialogType: DialogType.error,
-          title: "errorOccurred",
-          description: " Exception");
+      // showAlert(
+      //     dialogType: DialogType.error,
+      //     title: "errorOccurred",
+      //     description: " Exception");
       rethrow;
     }
   }
@@ -244,26 +245,26 @@ class CommonController extends GetxController {
     } on SocketException catch (e) {
       closeLoadingDialog();
       Logger.error(tag, 'Socket Exception- ${e.toString()}');
-      showAlert(
-          dialogType: DialogType.success,
-          title: "errorOccurred",
-          description: "Socket Exception");
+      // showAlert(
+      //     dialogType: DialogType.success,
+      //     title: "errorOccurred",
+      //     description: "Socket Exception");
       rethrow;
     } on TimeoutException catch (e) {
       closeLoadingDialog();
       Logger.error(tag, 'Timeout Exception- ${e.toString()}');
-      showAlert(
-          dialogType: DialogType.error,
-          title: "errorOccurred",
-          description: "Timeout Exception");
+      // showAlert(
+      //     dialogType: DialogType.error,
+      //     title: "errorOccurred",
+      //     description: "Timeout Exception");
       rethrow;
     } on Exception catch (e) {
       closeLoadingDialog();
       Logger.error(tag, 'Exception- ${e.toString()}');
-      showAlert(
-          dialogType: DialogType.error,
-          title: "errorOccurred",
-          description: " Exception");
+      // showAlert(
+      //     dialogType: DialogType.error,
+      //     title: "errorOccurred",
+      //     description: " Exception");
       rethrow;
     }
   }
@@ -302,26 +303,26 @@ class CommonController extends GetxController {
     } on SocketException catch (e) {
       closeLoadingDialog();
       Logger.error(tag, 'Socket Exception- ${e.toString()}');
-      showAlert(
-          dialogType: DialogType.success,
-          title: "errorOccurred",
-          description: "Socket Exception");
+      // showAlert(
+      //     dialogType: DialogType.success,
+      //     title: "errorOccurred",
+      //     description: "Socket Exception");
       rethrow;
     } on TimeoutException catch (e) {
       closeLoadingDialog();
       Logger.error(tag, 'Timeout Exception- ${e.toString()}');
-      showAlert(
-          dialogType: DialogType.error,
-          title: "errorOccurred",
-          description: "Timeout Exception");
+      // showAlert(
+      //     dialogType: DialogType.error,
+      //     title: "errorOccurred",
+      //     description: "Timeout Exception");
       rethrow;
     } on Exception catch (e) {
       closeLoadingDialog();
       Logger.error(tag, 'Exception- ${e.toString()}');
-      showAlert(
-          dialogType: DialogType.error,
-          title: "errorOccurred",
-          description: " Exception");
+      // showAlert(
+      //     dialogType: DialogType.error,
+      //     title: "errorOccurred",
+      //     description: " Exception");
       rethrow;
     }
   }
@@ -375,26 +376,26 @@ class CommonController extends GetxController {
     } on SocketException catch (e) {
       closeLoadingDialog();
       Logger.error(tag, 'Socket Exception- ${e.toString()}');
-      showAlert(
-          dialogType: DialogType.success,
-          title: "errorOccurred",
-          description: "Socket Exception");
+      // showAlert(
+      //     dialogType: DialogType.success,
+      //     title: "errorOccurred",
+      //     description: "Socket Exception");
       rethrow;
     } on TimeoutException catch (e) {
       closeLoadingDialog();
       Logger.error(tag, 'Timeout Exception- ${e.toString()}');
-      showAlert(
-          dialogType: DialogType.error,
-          title: "errorOccurred",
-          description: "Timeout Exception");
+      // showAlert(
+      //     dialogType: DialogType.error,
+      //     title: "errorOccurred",
+      //     description: "Timeout Exception");
       rethrow;
     } on Exception catch (e) {
       closeLoadingDialog();
       Logger.error(tag, 'Exception- ${e.toString()}');
-      showAlert(
-          dialogType: DialogType.error,
-          title: "errorOccurred",
-          description: " Exception");
+      // showAlert(
+      //     dialogType: DialogType.error,
+      //     title: "errorOccurred",
+      //     description: " Exception");
       rethrow;
     }
   }
@@ -429,26 +430,26 @@ class CommonController extends GetxController {
     } on SocketException catch (e) {
       // closeLoadingDialog();
       Logger.error(tag, 'Socket Exception- ${e.toString()}');
-      showAlert(
-          dialogType: DialogType.success,
-          title: "errorOccurred",
-          description: "Socket Exception");
+      // showAlert(
+      //     dialogType: DialogType.success,
+      //     title: "errorOccurred",
+      //     description: "Socket Exception");
       rethrow;
     } on TimeoutException catch (e) {
       // closeLoadingDialog();
       Logger.error(tag, 'Timeout Exception- ${e.toString()}');
-      showAlert(
-          dialogType: DialogType.error,
-          title: "errorOccurred",
-          description: "Timeout Exception");
+      // showAlert(
+      //     dialogType: DialogType.error,
+      //     title: "errorOccurred",
+      //     description: "Timeout Exception");
       rethrow;
     } on Exception catch (e) {
       // closeLoadingDialog();
       Logger.error(tag, 'Exception- ${e.toString()}');
-      showAlert(
-          dialogType: DialogType.error,
-          title: "errorOccurred",
-          description: " Exception");
+      // showAlert(
+      //     dialogType: DialogType.error,
+      //     title: "errorOccurred",
+      //     description: " Exception");
       rethrow;
     }
     await getAllInvoices(userModel);
@@ -484,26 +485,26 @@ class CommonController extends GetxController {
     } on SocketException catch (e) {
       // closeLoadingDialog();
       Logger.error(tag, 'Socket Exception- ${e.toString()}');
-      showAlert(
-          dialogType: DialogType.success,
-          title: "errorOccurred",
-          description: "Socket Exception");
+      // showAlert(
+      //     dialogType: DialogType.success,
+      //     title: "errorOccurred",
+      //     description: "Socket Exception");
       rethrow;
     } on TimeoutException catch (e) {
       // closeLoadingDialog();
       Logger.error(tag, 'Timeout Exception- ${e.toString()}');
-      showAlert(
-          dialogType: DialogType.error,
-          title: "errorOccurred",
-          description: "Timeout Exception");
+      // showAlert(
+      //     dialogType: DialogType.error,
+      //     title: "errorOccurred",
+      //     description: "Timeout Exception");
       rethrow;
     } on Exception catch (e) {
       // closeLoadingDialog();
       Logger.error(tag, 'Exception- ${e.toString()}');
-      showAlert(
-          dialogType: DialogType.error,
-          title: "errorOccurred",
-          description: " Exception");
+      // showAlert(
+      //     dialogType: DialogType.error,
+      //     title: "errorOccurred",
+      //     description: " Exception");
       rethrow;
     }
   }
@@ -535,26 +536,26 @@ class CommonController extends GetxController {
     } on SocketException catch (e) {
       // closeLoadingDialog();
       Logger.error(tag, 'Socket Exception- ${e.toString()}');
-      showAlert(
-          dialogType: DialogType.success,
-          title: "errorOccurred",
-          description: "Socket Exception");
+      // showAlert(
+      //     dialogType: DialogType.success,
+      //     title: "errorOccurred",
+      //     description: "Socket Exception");
       rethrow;
     } on TimeoutException catch (e) {
       // closeLoadingDialog();
       Logger.error(tag, 'Timeout Exception- ${e.toString()}');
-      showAlert(
-          dialogType: DialogType.error,
-          title: "errorOccurred",
-          description: "Timeout Exception");
+      // showAlert(
+      //     dialogType: DialogType.error,
+      //     title: "errorOccurred",
+      //     description: "Timeout Exception");
       rethrow;
     } on Exception catch (e) {
       // closeLoadingDialog();
       Logger.error(tag, 'Exception- ${e.toString()}');
-      showAlert(
-          dialogType: DialogType.error,
-          title: "errorOccurred",
-          description: " Exception");
+      // showAlert(
+      //     dialogType: DialogType.error,
+      //     title: "errorOccurred",
+      //     description: " Exception");
       rethrow;
     }
   }
@@ -597,26 +598,26 @@ class CommonController extends GetxController {
     } on SocketException catch (e) {
       // closeLoadingDialog();
       Logger.error(tag, 'Socket Exception- ${e.toString()}');
-      showAlert(
-          dialogType: DialogType.success,
-          title: "errorOccurred",
-          description: "Socket Exception");
+      // showAlert(
+      //     dialogType: DialogType.success,
+      //     title: "errorOccurred",
+      //     description: "Socket Exception");
       rethrow;
     } on TimeoutException catch (e) {
       // closeLoadingDialog();
       Logger.error(tag, 'Timeout Exception- ${e.toString()}');
-      showAlert(
-          dialogType: DialogType.error,
-          title: "errorOccurred",
-          description: "Timeout Exception");
+      // showAlert(
+      //     dialogType: DialogType.error,
+      //     title: "errorOccurred",
+      //     description: "Timeout Exception");
       rethrow;
     } on Exception catch (e) {
       // closeLoadingDialog();
       Logger.error(tag, 'Exception- ${e.toString()}');
-      showAlert(
-          dialogType: DialogType.error,
-          title: "errorOccurred",
-          description: " Exception");
+      // showAlert(
+      //     dialogType: DialogType.error,
+      //     title: "errorOccurred",
+      //     description: " Exception");
       rethrow;
     }
   }
@@ -664,26 +665,26 @@ class CommonController extends GetxController {
     } on SocketException catch (e) {
       // closeLoadingDialog();
       Logger.error(tag, 'Socket Exception- ${e.toString()}');
-      showAlert(
-          dialogType: DialogType.success,
-          title: "errorOccurred",
-          description: "Socket Exception");
+      // showAlert(
+      //     dialogType: DialogType.success,
+      //     title: "errorOccurred",
+      //     description: "Socket Exception");
       rethrow;
     } on TimeoutException catch (e) {
       // closeLoadingDialog();
       Logger.error(tag, 'Timeout Exception- ${e.toString()}');
-      showAlert(
-          dialogType: DialogType.error,
-          title: "errorOccurred",
-          description: "Timeout Exception");
+      // showAlert(
+      //     dialogType: DialogType.error,
+      //     title: "errorOccurred",
+      //     description: "Timeout Exception");
       rethrow;
     } on Exception catch (e) {
       // closeLoadingDialog();
       Logger.error(tag, 'Exception- ${e.toString()}');
-      showAlert(
-          dialogType: DialogType.error,
-          title: "errorOccurred",
-          description: " Exception");
+      // showAlert(
+      //     dialogType: DialogType.error,
+      //     title: "errorOccurred",
+      //     description: " Exception");
       rethrow;
     }
   }
@@ -787,26 +788,26 @@ class CommonController extends GetxController {
     } on SocketException catch (e) {
       // closeLoadingDialog();
       Logger.error(tag, 'Socket Exception- ${e.toString()}');
-      showAlert(
-          dialogType: DialogType.success,
-          title: "errorOccurred",
-          description: "Socket Exception");
+      // showAlert(
+      //     dialogType: DialogType.success,
+      //     title: "errorOccurred",
+      //     description: "Socket Exception");
       rethrow;
     } on TimeoutException catch (e) {
       // closeLoadingDialog();
       Logger.error(tag, 'Timeout Exception- ${e.toString()}');
-      showAlert(
-          dialogType: DialogType.error,
-          title: "errorOccurred",
-          description: "Timeout Exception");
+      // showAlert(
+      //     dialogType: DialogType.error,
+      //     title: "errorOccurred",
+      //     description: "Timeout Exception");
       rethrow;
     } on Exception catch (e) {
       // closeLoadingDialog();
       Logger.error(tag, 'Exception- ${e.toString()}');
-      showAlert(
-          dialogType: DialogType.error,
-          title: "errorOccurred",
-          description: " Exception");
+      // showAlert(
+      //     dialogType: DialogType.error,
+      //     title: "errorOccurred",
+      //     description: " Exception");
       rethrow;
     }
   }
@@ -907,26 +908,26 @@ class CommonController extends GetxController {
     } on SocketException catch (e) {
       // closeLoadingDialog();
       Logger.error(tag, 'Socket Exception- ${e.toString()}');
-      showAlert(
-          dialogType: DialogType.success,
-          title: "errorOccurred",
-          description: "Socket Exception");
+      // showAlert(
+      //     dialogType: DialogType.success,
+      //     title: "errorOccurred",
+      //     description: "Socket Exception");
       rethrow;
     } on TimeoutException catch (e) {
       // closeLoadingDialog();
       Logger.error(tag, 'Timeout Exception- ${e.toString()}');
-      showAlert(
-          dialogType: DialogType.error,
-          title: "errorOccurred",
-          description: "Timeout Exception");
+      // showAlert(
+      //     dialogType: DialogType.error,
+      //     title: "errorOccurred",
+      //     description: "Timeout Exception");
       rethrow;
     } on Exception catch (e) {
       // closeLoadingDialog();
       Logger.error(tag, 'Exception- ${e.toString()}');
-      showAlert(
-          dialogType: DialogType.error,
-          title: "errorOccurred",
-          description: " Exception");
+      // showAlert(
+      //     dialogType: DialogType.error,
+      //     title: "errorOccurred",
+      //     description: " Exception");
       rethrow;
     }
   }
@@ -1027,26 +1028,26 @@ class CommonController extends GetxController {
     } on SocketException catch (e) {
       // closeLoadingDialog();
       Logger.error(tag, 'Socket Exception- ${e.toString()}');
-      showAlert(
-          dialogType: DialogType.success,
-          title: "errorOccurred",
-          description: "Socket Exception");
+      // showAlert(
+      //     dialogType: DialogType.success,
+      //     title: "errorOccurred",
+      //     description: "Socket Exception");
       rethrow;
     } on TimeoutException catch (e) {
       // closeLoadingDialog();
       Logger.error(tag, 'Timeout Exception- ${e.toString()}');
-      showAlert(
-          dialogType: DialogType.error,
-          title: "errorOccurred",
-          description: "Timeout Exception");
+      // showAlert(
+      //     dialogType: DialogType.error,
+      //     title: "errorOccurred",
+      //     description: "Timeout Exception");
       rethrow;
     } on Exception catch (e) {
       // closeLoadingDialog();
       Logger.error(tag, 'Exception- ${e.toString()}');
-      showAlert(
-          dialogType: DialogType.error,
-          title: "errorOccurred",
-          description: " Exception");
+      // showAlert(
+      //     dialogType: DialogType.error,
+      //     title: "errorOccurred",
+      //     description: " Exception");
       rethrow;
     }
   }
@@ -1113,26 +1114,26 @@ class CommonController extends GetxController {
     } on SocketException catch (e) {
       closeLoadingDialog();
       Logger.error(tag, 'Socket Exception- ${e.toString()}');
-      showAlert(
-          dialogType: DialogType.success,
-          title: "errorOccurred",
-          description: "Socket Exception");
+      // showAlert(
+      //     dialogType: DialogType.success,
+      //     title: "errorOccurred",
+      //     description: "Socket Exception");
       rethrow;
     } on TimeoutException catch (e) {
       closeLoadingDialog();
       Logger.error(tag, 'Timeout Exception- ${e.toString()}');
-      showAlert(
-          dialogType: DialogType.error,
-          title: "errorOccurred",
-          description: "Timeout Exception");
+      // showAlert(
+      //     dialogType: DialogType.error,
+      //     title: "errorOccurred",
+      //     description: "Timeout Exception");
       rethrow;
     } on Exception catch (e) {
       closeLoadingDialog();
       Logger.error(tag, 'Exception- ${e.toString()}');
-      showAlert(
-          dialogType: DialogType.error,
-          title: "errorOccurred",
-          description: " Exception");
+      // showAlert(
+      //     dialogType: DialogType.error,
+      //     title: "errorOccurred",
+      //     description: " Exception");
       rethrow;
     }
   }
@@ -1220,26 +1221,26 @@ class CommonController extends GetxController {
     } on SocketException catch (e) {
       closeLoadingDialog();
       Logger.error(tag, 'Socket Exception- ${e.toString()}');
-      showAlert(
-          dialogType: DialogType.success,
-          title: "errorOccurred",
-          description: "Socket Exception");
+      // showAlert(
+      //     dialogType: DialogType.success,
+      //     title: "errorOccurred",
+      //     description: "Socket Exception");
       rethrow;
     } on TimeoutException catch (e) {
       closeLoadingDialog();
       Logger.error(tag, 'Timeout Exception- ${e.toString()}');
-      showAlert(
-          dialogType: DialogType.error,
-          title: "errorOccurred",
-          description: "Timeout Exception");
+      // showAlert(
+      //     dialogType: DialogType.error,
+      //     title: "errorOccurred",
+      //     description: "Timeout Exception");
       rethrow;
     } on Exception catch (e) {
       closeLoadingDialog();
       Logger.error(tag, 'Exception- ${e.toString()}');
-      showAlert(
-          dialogType: DialogType.error,
-          title: "errorOccurred",
-          description: " Exception");
+      // showAlert(
+      //     dialogType: DialogType.error,
+      //     title: "errorOccurred",
+      //     description: " Exception");
       rethrow;
     }
   }
@@ -1320,26 +1321,26 @@ class CommonController extends GetxController {
     } on SocketException catch (e) {
       closeLoadingDialog();
       Logger.error(tag, 'Socket Exception- ${e.toString()}');
-      showAlert(
-          dialogType: DialogType.success,
-          title: "errorOccurred",
-          description: "Socket Exception");
+      // showAlert(
+      //     dialogType: DialogType.success,
+      //     title: "errorOccurred",
+      //     description: "Socket Exception");
       rethrow;
     } on TimeoutException catch (e) {
       closeLoadingDialog();
       Logger.error(tag, 'Timeout Exception- ${e.toString()}');
-      showAlert(
-          dialogType: DialogType.error,
-          title: "errorOccurred",
-          description: "Timeout Exception");
+      // showAlert(
+      //     dialogType: DialogType.error,
+      //     title: "errorOccurred",
+      //     description: "Timeout Exception");
       rethrow;
     } on Exception catch (e) {
       closeLoadingDialog();
       Logger.error(tag, 'Exception- ${e.toString()}');
-      showAlert(
-          dialogType: DialogType.error,
-          title: "errorOccurred",
-          description: " Exception");
+      // showAlert(
+      //     dialogType: DialogType.error,
+      //     title: "errorOccurred",
+      //     description: " Exception");
       rethrow;
     }
 
@@ -1375,26 +1376,26 @@ class CommonController extends GetxController {
     } on SocketException catch (e) {
       // closeLoadingDialog();
       Logger.error(tag, 'Socket Exception- ${e.toString()}');
-      showAlert(
-          dialogType: DialogType.success,
-          title: "errorOccurred",
-          description: "Socket Exception");
+      // showAlert(
+      //     dialogType: DialogType.success,
+      //     title: "errorOccurred",
+      //     description: "Socket Exception");
       rethrow;
     } on TimeoutException catch (e) {
       // closeLoadingDialog();
       Logger.error(tag, 'Timeout Exception- ${e.toString()}');
-      showAlert(
-          dialogType: DialogType.error,
-          title: "errorOccurred",
-          description: "Timeout Exception");
+      // showAlert(
+      //     dialogType: DialogType.error,
+      //     title: "errorOccurred",
+      //     description: "Timeout Exception");
       rethrow;
     } on Exception catch (e) {
       // closeLoadingDialog();
       Logger.error(tag, 'Exception- ${e.toString()}');
-      showAlert(
-          dialogType: DialogType.error,
-          title: "errorOccurred",
-          description: " Exception");
+      // showAlert(
+      //     dialogType: DialogType.error,
+      //     title: "errorOccurred",
+      //     description: " Exception");
       rethrow;
     }
   }
@@ -1550,27 +1551,37 @@ class CommonController extends GetxController {
     } on SocketException catch (e) {
       closeLoadingDialog();
       Logger.error(tag, 'Socket Exception- ${e.toString()}');
-      showAlert(
-          dialogType: DialogType.success,
-          title: "errorOccurred",
-          description: "Socket Exception");
+      // showAlert(
+      //     dialogType: DialogType.success,
+      //     title: "errorOccurred",
+      //     description: "Socket Exception");
       rethrow;
     } on TimeoutException catch (e) {
       closeLoadingDialog();
       Logger.error(tag, 'Timeout Exception- ${e.toString()}');
-      showAlert(
-          dialogType: DialogType.error,
-          title: "errorOccurred",
-          description: "Timeout Exception");
+      // showAlert(
+      //     dialogType: DialogType.error,
+      //     title: "errorOccurred",
+      //     description: "Timeout Exception");
       rethrow;
     } on Exception catch (e) {
       closeLoadingDialog();
       Logger.error(tag, 'Exception- ${e.toString()}');
-      showAlert(
-          dialogType: DialogType.error,
-          title: "errorOccurred",
-          description: " Exception");
+      // showAlert(
+      //     dialogType: DialogType.error,
+      //     title: "errorOccurred",
+      //     description: " Exception");
       rethrow;
+    }
+  }
+  // Function to launch the URL
+  launchURL() async {
+    const url = 'https://imeicheck.uk/web/';
+
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
     }
   }
 

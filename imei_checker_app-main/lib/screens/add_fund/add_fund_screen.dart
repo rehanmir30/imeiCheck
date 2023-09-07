@@ -27,32 +27,49 @@ class AddFundScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return CommonScaffold(
       appBarTitle: 'ADD FUND',
-      body: Container(
-        margin: AppWidgets.edgeInsetsSymmetric(horizontal: 20, vertical: 25),
-        child: Column(
-          children: [
-            AppWidgets.spacingHeight(50),
+      body: GetBuilder<CommonController>(builder: (controller) {
+        return (controller.bankKeyModel?.stripeSecretKey=="true" || controller.bankKeyModel?.stripePublishableKey=="true")
+            ?Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
 
-            // _topUpCard(imagePath: ImagesPath.bankIconPNG,paymentMethod:"Direct Transfer"),
-            _topUpCard(imagePath: ImagesPath.visaIconPNG ,paymentMethod:"Stripe"),
-            _topUpCard(imagePath: ImagesPath.paypalIconPNG ,paymentMethod:"Paypal"),
-            // _topUpCard(imagePath: ImagesPath.usdtIconPNG ,paymentMethod:"USDT"),
+                Center(child: Text('Please contact the support for your recharge',style: TextStyle(color: AppColors.kBackgroundColor),)),
+                SizedBox(height: 10,),
+                Center(child: InkWell(
+                    onTap: () async{
+                     await controller.launchURL();
+                    },
+                    child: Text('Contact Support',style: TextStyle(color: AppColors.kBlueColor,decoration: TextDecoration.underline),))),
 
-            AppWidgets.spacingHeight(30),
-            CustomButton(
-              buttonHeight: 50.h,
-              buttonWidth: 300.w,
-              buttonText: "VIEW TOP UP HISTORY",
-              buttonColor: AppColors.kPrimary,
-              buttonTextStyle: AppTextStyles.black18W600TextStyle,
-              buttonOnPressed: () async {
-                Get.to(TopUpHistoryScreen());
-              },
-            ),
+              ])
+            :Container(
+            margin: AppWidgets.edgeInsetsSymmetric(horizontal: 20, vertical: 25),
+            child: Column(
+              children: [
+                AppWidgets.spacingHeight(50),
 
-          ],
-        )
-      ),
+                // _topUpCard(imagePath: ImagesPath.bankIconPNG,paymentMethod:"Direct Transfer"),
+                _topUpCard(imagePath: ImagesPath.visaIconPNG ,paymentMethod:"Stripe"),
+                _topUpCard(imagePath: ImagesPath.paypalIconPNG ,paymentMethod:"Paypal"),
+                // _topUpCard(imagePath: ImagesPath.usdtIconPNG ,paymentMethod:"USDT"),
+
+                AppWidgets.spacingHeight(30),
+                CustomButton(
+                  buttonHeight: 50.h,
+                  buttonWidth: 300.w,
+                  buttonText: "VIEW TOP UP HISTORY",
+                  buttonColor: AppColors.kPrimary,
+                  buttonTextStyle: AppTextStyles.black18W600TextStyle,
+                  buttonOnPressed: () async {
+                    Get.to(TopUpHistoryScreen());
+                  },
+                ),
+
+              ],
+            )
+        );
+      },)
     );
   }
 
